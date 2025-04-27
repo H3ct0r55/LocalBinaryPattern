@@ -1,0 +1,3 @@
+/Users/hector/CLionProjects/S2/LocalBinaryPattern/cmake-build-debug/CMakeFiles/LocalBinaryPattern.dir
+/Users/hector/CLionProjects/S2/LocalBinaryPattern/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/hector/CLionProjects/S2/LocalBinaryPattern/cmake-build-debug/CMakeFiles/rebuild_cache.dir

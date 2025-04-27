@@ -1,0 +1,23 @@
+# ninja log v6
+968	1143	1745766727727702187	LocalBinaryPattern	ea3e1135a131e025
+7	968	1745766726766817322	CMakeFiles/LocalBinaryPattern.dir/Image.cpp.o	ebf1d8de7f3cd81d
+6	923	1745766726765906631	CMakeFiles/LocalBinaryPattern.dir/main.cpp.o	280a05fbcc7922f2
+6	870	1745766826082908983	CMakeFiles/LocalBinaryPattern.dir/main.cpp.o	280a05fbcc7922f2
+7	911	1745766826083597699	CMakeFiles/LocalBinaryPattern.dir/Image.cpp.o	ebf1d8de7f3cd81d
+911	1044	1745766826987051326	LocalBinaryPattern	ea3e1135a131e025
+6	1103	1745766903929797428	CMakeFiles/LocalBinaryPattern.dir/Image.cpp.o	ebf1d8de7f3cd81d
+1103	1249	1745766905026486456	LocalBinaryPattern	ea3e1135a131e025
+7	774	1745766919792063191	CMakeFiles/LocalBinaryPattern.dir/main.cpp.o	280a05fbcc7922f2
+775	879	1745766920560069231	LocalBinaryPattern	ea3e1135a131e025
+9	1380	1745766983198980920	CMakeFiles/LocalBinaryPattern.dir/Image.cpp.o	ebf1d8de7f3cd81d
+1380	1526	1745766984570094269	LocalBinaryPattern	ea3e1135a131e025
+7	2128	1745767012965057679	CMakeFiles/LocalBinaryPattern.dir/Image.cpp.o	ebf1d8de7f3cd81d
+2129	2286	1745767015087503470	LocalBinaryPattern	ea3e1135a131e025
+6	937	1745767196829681026	CMakeFiles/LocalBinaryPattern.dir/Image.cpp.o	ebf1d8de7f3cd81d
+938	1079	1745767197761055694	LocalBinaryPattern	ea3e1135a131e025
+5	866	1745767267694702861	CMakeFiles/LocalBinaryPattern.dir/main.cpp.o	280a05fbcc7922f2
+866	1002	1745767268555477978	LocalBinaryPattern	ea3e1135a131e025
+7	966	1745767457377953770	CMakeFiles/LocalBinaryPattern.dir/Image.cpp.o	ebf1d8de7f3cd81d
+966	1104	1745767458337105819	LocalBinaryPattern	ea3e1135a131e025
+7	898	1745767465858873836	CMakeFiles/LocalBinaryPattern.dir/main.cpp.o	280a05fbcc7922f2
+899	1044	1745767466749872029	LocalBinaryPattern	ea3e1135a131e025

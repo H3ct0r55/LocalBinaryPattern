@@ -52,14 +52,12 @@ build cmake_object_order_depends_target_LocalBinaryPattern: phony || .
 build CMakeFiles/LocalBinaryPattern.dir/main.cpp.o: CXX_COMPILER__LocalBinaryPattern_unscanned_Debug /Users/hector/CLionProjects/S2/LocalBinaryPattern/main.cpp || cmake_object_order_depends_target_LocalBinaryPattern
   DEP_FILE = CMakeFiles/LocalBinaryPattern.dir/main.cpp.o.d
   FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk -fcolor-diagnostics
-  INCLUDES = -I/opt/homebrew/include
   OBJECT_DIR = CMakeFiles/LocalBinaryPattern.dir
   OBJECT_FILE_DIR = CMakeFiles/LocalBinaryPattern.dir
 
 build CMakeFiles/LocalBinaryPattern.dir/Image.cpp.o: CXX_COMPILER__LocalBinaryPattern_unscanned_Debug /Users/hector/CLionProjects/S2/LocalBinaryPattern/Image.cpp || cmake_object_order_depends_target_LocalBinaryPattern
   DEP_FILE = CMakeFiles/LocalBinaryPattern.dir/Image.cpp.o.d
   FLAGS = -g -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk -fcolor-diagnostics
-  INCLUDES = -I/opt/homebrew/include
   OBJECT_DIR = CMakeFiles/LocalBinaryPattern.dir
   OBJECT_FILE_DIR = CMakeFiles/LocalBinaryPattern.dir
 
@@ -73,9 +71,8 @@ build CMakeFiles/LocalBinaryPattern.dir/Image.cpp.o: CXX_COMPILER__LocalBinaryPa
 
 build LocalBinaryPattern: CXX_EXECUTABLE_LINKER__LocalBinaryPattern_Debug CMakeFiles/LocalBinaryPattern.dir/main.cpp.o CMakeFiles/LocalBinaryPattern.dir/Image.cpp.o
   FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk
-  LINK_PATH = -L/opt/homebrew/lib
   OBJECT_DIR = CMakeFiles/LocalBinaryPattern.dir
-  POST_BUILD = :
+  POST_BUILD = cd /Users/hector/CLionProjects/S2/LocalBinaryPattern/cmake-build-debug && /opt/homebrew/bin/aarch64-unknown-linux-gnu-strip /Users/hector/CLionProjects/S2/LocalBinaryPattern/cmake-build-debug/LocalBinaryPattern
   PRE_LINK = :
   TARGET_FILE = LocalBinaryPattern
   TARGET_PDB = LocalBinaryPattern.dbg

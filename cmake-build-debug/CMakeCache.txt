@@ -222,6 +222,9 @@ LocalBinaryPattern_IS_TOP_LEVEL:STATIC=ON
 //Value Computed by CMake
 LocalBinaryPattern_SOURCE_DIR:STATIC=/Users/hector/CLionProjects/S2/LocalBinaryPattern
 
+//The directory containing a CMake configuration file for OpenCV.
+OpenCV_DIR:PATH=/opt/homebrew/lib/cmake/opencv4
+
 
 ########################
 # INTERNAL cache entries
@@ -360,4 +363,6 @@ CMAKE_TAPI-ADVANCED:INTERNAL=1
 CMAKE_UNAME:INTERNAL=/usr/bin/uname
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
+//Details about finding OpenCV
+FIND_PACKAGE_MESSAGE_DETAILS_OpenCV:INTERNAL=[/opt/homebrew/Cellar/opencv/4.11.0_1][v4.11.0()]
 

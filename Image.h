@@ -2,6 +2,45 @@
 // Created by Hector van der Aa on 4/22/25.
 //
 
+#ifndef EdgeType
+#define EdgeType
+#define CropEdge 0
+#define BlackBorder 1
+#define WhiteBorder 2
+#define MirrorBorder 3
+#define UNSUPPORTED_EDGETYPE (-1)
+#endif
+
+#ifndef ColorType
+#define ColorType
+#define Grayscale 0
+#define RGB 1
+#endif
+
+#ifndef FileType
+#define FileType
+#define IMAT 0
+#define TIFF 1
+#define TGA 2
+#define CSV 3
+#define HIST 4
+#define UNSUPPORTED_FILETYPE (-1)
+#endif
+
+#ifndef ComputeType
+#define ComputeType
+#define LocalBinaryPattern 0
+#define Histogram 1
+#define UNSUPPORTED_COMPUTETYPE (-1)
+#endif
+
+#ifndef HistType
+#define HistType
+#define RAW 0
+#define NORMAL 1
+#define UNSUPPORTED_HISTTYPE (-1)
+#endif
+
 #ifndef IMAGE_H
 #define IMAGE_H
 
@@ -9,26 +48,22 @@
 #include <iostream>
 #include <fstream>
 #include <random>
-using std::cout, std::ostream, std::endl, std::cerr,
+#include <iomanip>
+#include <filesystem>
+#include <cstring>
+#include <algorithm>
+//#include <opencv2/opencv.hpp>
+using std::cout, std::ostream, std::endl, std::cerr, std::setprecision,
 std::fstream, std::ios, std::streamsize,
 std::random_device, std::mt19937, std::uniform_real_distribution,
-std::string;
+std::string, std::strlen, std::transform,
+std::filesystem::path;
 
 
 class Image {
     int m_width, m_height;
     uint8_t** m_p_data;
 public:
-    enum class EdgeType {
-        CropEdge,
-        WhiteBorder,
-        BlackBorder,
-        MirrorBorder
-    };
-    enum class ColorType {
-        Grayscale,
-        RGB
-    };
 
     Image();
     Image(int width, int height);
@@ -41,30 +76,33 @@ public:
 
     void randFill() const;
     void valFill(int value) const;
-    void writeIMAT(const char* filename);
-    void writeTGA(const char* filename, ColorType colorType);
-    void writeTIF(const char* filename, ColorType colorType);
+    bool writeIMAT(const char* filename);
+    bool writeTGA(const char* filename, int colorType, bool forcePath);
+    bool writeTIF(const char* filename, int colorType, bool forcePath);
     void readIMAT(const char* filename);
     void readTGA(const char* filename);
     void setVal(int x, int y, uint8_t val);
+    void displayImage();
     uint8_t* unwrapLocal(int x, int y);
     //uint8_t* unwrapLocal(int x, int y, int edgeType);
     uint8_t* localLBP(int x, int y);
-    Image computeLBP(EdgeType edgeType);
-    uint8_t* computeRawHist();
+    Image computeLBP(int edgeType);
+    uint32_t* computeRawHist();
     double* computeNormHist();
 
     friend ostream& operator<<(ostream& os, const Image& image);
-    friend ostream& operator<<(ostream& os, EdgeType edgeType);
-    friend ostream& operator<<(ostream& os, ColorType colorType);
     Image& operator=(const Image& image);
 
 };
 
 uint8_t castToInt(const uint8_t* input);
-void writeRHIST(uint8_t* histogram, const char* filename);
-void writeNHIST(double* histogram, const char* filename);
-uint8_t* readRHIST(const char* filename);
+bool writeRHIST(uint32_t* histogram, const char* filename);
+bool writeRHISTCSV(uint32_t* histogram, const char* filename);
+bool writeNHIST(double* histogram, const char* filename);
+bool writeNHISTCSV(double* histogram, const char* filename);
+uint32_t* readRHIST(const char* filename);
 double* readNHIST(const char* filename);
+void clearCache();
+void displayImage(const char* filename);
 
 #endif //IMAGE_H

@@ -2,6 +2,7 @@
 // Created by Hector van der Aa on 4/22/25.
 //
 
+
 #include "Image.h"
 
 Image::Image() : m_width(0), m_height(0), m_p_data(nullptr) {
@@ -168,7 +169,7 @@ void Image::valFill(int value) const {
     }
 }
 
-void Image::writeIMAT(const char *filename) {
+bool Image::writeIMAT(const char *filename) {
     string extFilename(filename);
     if (extFilename.find('.') == string::npos) {
         extFilename += ".imat";
@@ -179,8 +180,9 @@ void Image::writeIMAT(const char *filename) {
     if (m_width > 0 && m_height > 0 && m_p_data != nullptr) {
         fstream file(extFilename, ios::out | ios::binary);
         if (!file.is_open()) {
-            cerr << "Warning: Unable to open file: " << extFilename << ", no file written" << endl;
-            return;
+            cerr << "Error: Unable to open file: " << extFilename << ", no file written" << endl;
+            file.close();
+            return false;
         }
         file.write(reinterpret_cast<const char *>(&m_width), sizeof(int));
         file.write(reinterpret_cast<const char *>(&m_height), sizeof(int));
@@ -188,7 +190,9 @@ void Image::writeIMAT(const char *filename) {
             file.write(reinterpret_cast<const char *>(m_p_data[i]), static_cast<streamsize>(m_width * sizeof(uint8_t)));
         }
         file.close();
+        return true;
     }
+    return false;
 }
 
 void Image::readIMAT(const char *filename) {
@@ -201,7 +205,7 @@ void Image::readIMAT(const char *filename) {
 
     fstream file(extFilename, ios::in | ios::binary);
     if (!file.is_open()) {
-        cerr << "Warning: Unable to open file: " << extFilename << ", no file written" << endl;
+        cerr << "Error: Unable to open file: " << extFilename << ", no file written" << endl;
         return;
     }
     if (m_p_data != nullptr) {
@@ -236,33 +240,6 @@ ostream &operator<<(ostream &os, const Image &image) {
     return os;
 }
 
-ostream &operator<<(ostream &os, Image::EdgeType edgeType) {
-    switch (edgeType) {
-        case Image::EdgeType::CropEdge: os << "CropEdge";
-            break;
-        case Image::EdgeType::WhiteBorder: os << "WhiteBorder";
-            break;
-        case Image::EdgeType::BlackBorder: os << "BlackBorder";
-            break;
-        case Image::EdgeType::MirrorBorder: os << "MirrorBorder";
-            break;
-        default: os << "Unknown EdgeType";
-            break;
-    }
-    return os;
-}
-
-ostream &operator<<(ostream &os, Image::ColorType colorType) {
-    switch (colorType) {
-        case Image::ColorType::Grayscale: os << "Grayscale";
-            break;
-        case Image::ColorType::RGB: os << "RGB";
-            break;
-        default: os << "Unknown ColorType";
-            break;
-    }
-}
-
 
 uint8_t *Image::unwrapLocal(int x, int y) {
     if (x > 0 && y > 0 && x < m_width - 1 && y < m_height - 1) {
@@ -271,7 +248,7 @@ uint8_t *Image::unwrapLocal(int x, int y) {
             if (m_p_data) {
                 temp[i] = m_p_data[y - 1][x + i - 1];
             } else {
-                cerr << "ERROR: nullptr called into unwarpLocal, exiting..." << endl;
+                cerr << "ERROR: nullptr called into unwarpLocal, exiting..." << endl;cerr << "ERROR: nullptr called into unwarpLocal, exiting..." << endl;
                 exit(12);
             }
         }
@@ -324,8 +301,8 @@ uint8_t *Image::localLBP(int x, int y) {
     return LBP;
 }
 
-uint8_t *Image::computeRawHist() {
-    auto *temp = new uint8_t[256];
+uint32_t *Image::computeRawHist() {
+    auto *temp = new uint32_t[256];
     for (int i = 0; i < 256; i++) {
         temp[i] = 0;
     }
@@ -339,7 +316,7 @@ uint8_t *Image::computeRawHist() {
 }
 
 double *Image::computeNormHist() {
-    uint8_t *temp = this->computeRawHist();
+    uint32_t *temp = this->computeRawHist();
     int total = 0;
     for (int i = 0; i < 256; i++) {
         total += static_cast<int>(temp[i]);
@@ -386,7 +363,7 @@ uint8_t castToInt(const uint8_t *input) {
     return result;
 }
 
-void writeRHIST(uint8_t *histogram, const char *filename) {
+bool writeRHIST(uint32_t *histogram, const char *filename) {
     string extFilename(filename);
     if (extFilename.find('.') == string::npos) {
         extFilename += ".r.hist";
@@ -396,14 +373,63 @@ void writeRHIST(uint8_t *histogram, const char *filename) {
     fstream file;
     file.open(extFilename, ios::out | ios::binary);
     if (!file.is_open()) {
-        cerr << "Warning: Unable to open file: " << extFilename << ", no file written" << endl;
-        return;
+        cerr << "Error: Unable to open file: " << extFilename << ", no file written" << endl;
+        file.close();
+        return false;
     }
-    file.write(reinterpret_cast<char *>(histogram), 256 * sizeof(uint8_t));
+    file.write(reinterpret_cast<char *>(histogram), 256 * sizeof(uint32_t));
     file.close();
+    return true;
 }
 
-void writeNHIST(uint8_t *histogram, const char *filename) {
+bool writeRHISTCSV(uint32_t *histogram, const char *filename) {
+    string extFilename(filename);
+    if (extFilename.find('.') == string::npos) {
+        extFilename += ".r.csv";
+    } else {
+        extFilename = extFilename.substr(0, extFilename.find('.')) + ".r.csv";
+    }
+    fstream file;
+    file.open(extFilename, ios::out | ios::binary);
+    if (!file.is_open()) {
+        cerr << "Error: Unable to open file: " << extFilename << ", no file written" << endl;
+        file.close();
+        return false;
+    }
+    const char* TopLine = "Value, Occurence\n";
+    file.write(TopLine, static_cast<streamsize>(strlen(TopLine)));
+    for (int i = 0; i < 256; i++) {
+        file << i << ", " << static_cast<int>(histogram[i]) << "\n";
+    }
+    file.close();
+    return true;
+}
+
+bool writeNHISTCSV(double *histogram, const char *filename) {
+    string extFilename(filename);
+    if (extFilename.find('.') == string::npos) {
+        extFilename += ".n.csv";
+    } else {
+        extFilename = extFilename.substr(0, extFilename.find('.')) + ".n.csv";
+    }
+    fstream file;
+    file.open(extFilename, ios::out | ios::binary);
+    if (!file.is_open()) {
+        cerr << "Error: Unable to open file: " << extFilename << ", no file written" << endl;
+        file.close();
+        return false;
+    }
+    const char* TopLine = "Value, Occurence\n";
+    file.write(TopLine, static_cast<streamsize>(strlen(TopLine)));
+    for (int i = 0; i < 256; i++) {
+        file << i << ", " << std::fixed << setprecision(15) << histogram[i] << "\n";
+    }
+    file.close();
+    return true;
+}
+
+
+bool writeNHIST(double *histogram, const char *filename) {
     string extFilename(filename);
     if (extFilename.find('.') == string::npos) {
         extFilename += ".n.hist";
@@ -413,28 +439,30 @@ void writeNHIST(uint8_t *histogram, const char *filename) {
     fstream file;
     file.open(extFilename, ios::out | ios::binary);
     if (!file.is_open()) {
-        cerr << "Warning: Unable to open file: " << extFilename << ", no file written" << endl;
-        return;
+        cerr << "Error: Unable to open file: " << extFilename << ", no file written" << endl;
+        file.close();
+        return false;
     }
     file.write(reinterpret_cast<char *>(histogram), 256 * sizeof(double));
     file.close();
+    return true;
 }
 
-uint8_t *readRHIST(const char *filename) {
+uint32_t *readRHIST(const char *filename) {
     string extFilename(filename);
     if (extFilename.find('.') == string::npos) {
         extFilename += ".r.hist";
     } else {
         extFilename = extFilename.substr(0, extFilename.find('.')) + ".r.hist";
     }
-    auto *histogram = new uint8_t[256];
+    auto *histogram = new uint32_t[256];
     fstream file;
     file.open(extFilename, ios::in | ios::binary);
     if (!file.is_open()) {
-        cerr << "Warning: Unable to open file: " << extFilename << ", no file written" << endl;
+        cerr << "Error: Unable to open file: " << extFilename << ", no file written" << endl;
         return {};
     }
-    file.read(reinterpret_cast<char *>(histogram), 256 * sizeof(uint8_t));
+    file.read(reinterpret_cast<char *>(histogram), 256 * sizeof(uint32_t));
     file.close();
     return histogram;
 }
@@ -450,7 +478,7 @@ double *readNHIST(const char *filename) {
     fstream file;
     file.open(extFilename, ios::in | ios::binary);
     if (!file.is_open()) {
-        cerr << "Warning: Unable to open file: " << extFilename << ", no file written" << endl;
+        cerr << "Error: Unable to open file: " << extFilename << ", no file written" << endl;
         return {};
     }
     file.read(reinterpret_cast<char *>(histogram), 256 * sizeof(double));
@@ -459,23 +487,22 @@ double *readNHIST(const char *filename) {
 }
 
 
-Image Image::computeLBP(EdgeType edgeType) {
+Image Image::computeLBP(int edgeType) {
     switch (edgeType) {
-        case EdgeType::CropEdge: {
+        case 0 : {
             Image lbp(m_width - 2, m_height - 2);
             for (int i = 0; i < m_height - 2; i++) {
                 for (int j = 0; j < m_width - 2; j++) {
                     if (lbp.m_p_data) {
                         lbp.m_p_data[i][j] = castToInt(this->localLBP(j + 1, i + 1));
                     } else {
-                        cerr << "Warning: Unable to calculate LBP for edgeType: " << edgeType <<
-                                ", of dimension smaller than 3x3" << endl;
+                        cerr << "Error: Unable to calculate LBP for edgeType: CropEdge, of dimension smaller than 3x3" << endl;
                     }
                 }
             }
             return lbp;
         }
-        case EdgeType::WhiteBorder: {
+        case 1 : {
             Image lbp(m_width, m_height);
             Image tempBorder(*this, 1, 0);
             for (int i = 0; i < m_height; i++) {
@@ -483,14 +510,13 @@ Image Image::computeLBP(EdgeType edgeType) {
                     if (lbp.m_p_data) {
                         lbp.m_p_data[i][j] = castToInt(tempBorder.localLBP(j + 1, i + 1));
                     } else {
-                        cerr << "Warning: Unable to calculate LBP for edgeType: " << edgeType <<
-                                ", of dimension smaller than 1x1" << endl;
+                        cerr << "Error: Unable to calculate LBP for edgeType: WhiteBorder, of dimension smaller than 1x1" << endl;
                     }
                 }
             }
             return lbp;
         }
-        case EdgeType::BlackBorder: {
+        case 2 : {
             Image lbp(m_width, m_height);
             Image tempBorder(*this, 1, 255);
             for (int i = 0; i < m_height; i++) {
@@ -498,14 +524,13 @@ Image Image::computeLBP(EdgeType edgeType) {
                     if (lbp.m_p_data) {
                         lbp.m_p_data[i][j] = castToInt(tempBorder.localLBP(j + 1, i + 1));
                     } else {
-                        cerr << "Warning: Unable to calculate LBP for edgeType: " << edgeType <<
-                                ", of dimension smaller than 1x1" << endl;
+                        cerr << "Error: Unable to calculate LBP for edgeType: BlackBorder, of dimension smaller than 1x1" << endl;
                     }
                 }
             }
             return lbp;
         }
-        case EdgeType::MirrorBorder: {
+        case 3 : {
             Image lbp(m_width, m_height);
             Image tempBorder(*this, 1);
             for (int i = 0; i < m_height; i++) {
@@ -513,54 +538,57 @@ Image Image::computeLBP(EdgeType edgeType) {
                     if (lbp.m_p_data) {
                         lbp.m_p_data[i][j] = castToInt(tempBorder.localLBP(j + 1, i + 1));
                     } else {
-                        cerr << "Warning: Unable to calculate LBP for edgeType: " << edgeType << edgeType <<
-                                ", of dimension smaller than 1x1" << endl;
+                        cerr << "Error: Unable to calculate LBP for edgeType: MirrorBorder, of dimension smaller than 1x1" << endl;
                     }
                 }
             }
             return lbp;
         }
         default: {
-            cerr << "Warning: Invalid edgeType: " << edgeType << endl;
+            cerr << "Error: Invalid edgeType: " << edgeType << endl;
             return {};
         }
     }
 }
 
-void Image::writeTGA(const char *filename, ColorType colorType) {
+bool Image::writeTGA(const char *filename, int colorType, bool forcePath) {
     string extFilename(filename);
-    if (extFilename.find('.') == string::npos) {
-        extFilename += ".tga";
-    } else {
-        extFilename = extFilename.substr(0, extFilename.find('.')) + ".tga";
+    if (!forcePath) {
+        if (extFilename.find('.') == string::npos) {
+            extFilename += ".tga";
+        } else {
+            extFilename = extFilename.substr(0, extFilename.find('.')) + ".tga";
+        }
     }
 
     if (m_p_data == nullptr || m_width <= 0 || m_height <= 0) {
-        cerr << "Warning: Empty or invalid image, not writing TGA." << endl;
-        return;
+        cerr << "Error: Empty or invalid image, not writing TGA." << endl;
+        return false;
     }
 
     fstream file(extFilename, ios::out | ios::binary);
     if (!file.is_open()) {
-        cerr << "Warning: Unable to open file: " << extFilename << ", no file written" << endl;
-        return;
+        cerr << "Error: Unable to open file: " << extFilename << ", no file written" << endl;
+        file.close();
+        return false;
     }
 
     uint8_t header[18] = {0};
     switch (colorType) {
-        case ColorType::Grayscale: {
+        case 0: {
             header[2] = 3;
             header[16] = 8;
             break;
         } // Image type: uncompressed grayscale
-        case ColorType::RGB: {
+        case 1: {
             header[2] = 2;
             header[16] = 24;
             break;
         }
         default: {
-            cerr << "Warning: Invalid colorType: " << colorType << endl;
-            return;
+            cerr << "Error: Invalid colorType: " << colorType << endl;
+            file.close();
+            return false;
         }
     }
     header[12] = static_cast<uint8_t>(m_width % 256);
@@ -572,14 +600,14 @@ void Image::writeTGA(const char *filename, ColorType colorType) {
     file.write(reinterpret_cast<const char *>(header), sizeof(header));
 
     switch (colorType) {
-        case ColorType::Grayscale: {
+        case 0: {
             for (int i = 0; i < m_height; i++) {
                 file.write(reinterpret_cast<const char *>(m_p_data[i]),
                            static_cast<streamsize>(m_width * sizeof(uint8_t)));
             }
             break;
         }
-        case ColorType::RGB: {
+        case 1: {
             for (int i = 0; i < m_height; i++) {
                 for (int j = 0; j < m_width; j++) {
                     for (int k = 0; k < 3; k++) {
@@ -591,6 +619,7 @@ void Image::writeTGA(const char *filename, ColorType colorType) {
         }
     }
     file.close();
+    return true;
 }
 
 void Image::readTGA(const char *filename) {
@@ -603,7 +632,7 @@ void Image::readTGA(const char *filename) {
 
     fstream file(extFilename, ios::in | ios::binary);
     if (!file.is_open()) {
-        cerr << "Warning: Unable to open file: " << extFilename << ", no file read" << endl;
+        cerr << "Error: Unable to open file: " << extFilename << ", no file read" << endl;
         return;
     }
 
@@ -614,9 +643,6 @@ void Image::readTGA(const char *filename) {
     int width = header[12] + (header[13] << 8);
     int height = header[14] + (header[15] << 8);
     uint8_t bitDepth = header[16];
-
-    cout << imageType << endl;
-    cout << static_cast<int>(bitDepth) << endl;
 
     if (imageType != 3 && imageType != 2) {
         cerr << "Error: TGA file is not grayscale (type 3) or RGB (type 2), aborting read." << endl;
@@ -700,22 +726,38 @@ void Image::setVal(int x, int y, uint8_t val) {
     m_p_data[y][x] = val;
 }
 
-void Image::writeTIF(const char *filename, ColorType colorType) {
+bool Image::writeTIF(const char *filename, int colorType, bool forcePath) {
     string extFilename(filename);
-    if (extFilename.find('.') == string::npos) {
-        extFilename += ".tif";
-    } else {
-        extFilename = extFilename.substr(0, extFilename.find('.')) + ".tif";
+    if (!forcePath) {
+        if (extFilename.find('.') == string::npos) {
+            extFilename += ".tif";
+        } else {
+            extFilename = extFilename.substr(0, extFilename.find('.')) + ".tif";
+        }
     }
+
+    // Ensure the directory portion of the path exists (e.g. "cache/myfile.tif")
+    path outPath(extFilename);
+    path dir = outPath.parent_path();
+    if (!dir.empty() && !exists(dir)) {
+        std::error_code ec;
+        if (!create_directories(dir, ec) && ec) {
+            std::cerr << "Error: Unable to create directory: " << dir << " (" << ec.message()
+                      << "), no file written" << std::endl;
+            return false;
+        }
+    }
+
     if (m_p_data == nullptr || m_width <= 0 || m_height <= 0) {
-        cerr << "Warning: Empty or invalid image, not writing TIF." << endl;
-        return;
+        cerr << "Error: Empty or invalid image, not writing TIF." << endl;
+        return false;
     }
 
     fstream file(extFilename, ios::out | ios::binary);
     if (!file.is_open()) {
-        cerr << "Warning: Unable to open file: " << extFilename << ", no file written" << endl;
-        return;
+        cerr << "Error: Unable to open file: " << extFilename << ", no file written" << endl;
+        file.close();
+        return false;
     }
 
     // --- HEADER (8 bytes) ---
@@ -749,19 +791,20 @@ void Image::writeTIF(const char *filename, ColorType colorType) {
     uint32_t strip_byte_count = width * height; // Size in bytes
     bool isRGB = false;
     switch (colorType) {
-        case ColorType::Grayscale: {
+        case 0: {
             samples_per_pixel = 1;
             break;
         }
-        case ColorType::RGB: {
+        case 1: {
             samples_per_pixel = 3;
             strip_byte_count = width * height * 3;
             isRGB = true;
             break;
         }
         default: {
-            cerr << "Warning: Invalid colorType: " << colorType << endl;
-            return;
+            cerr << "Error: Invalid colorType: " << colorType << endl;
+            file.close();
+            return false;
         }
     }
     uint32_t rows_per_strip = height; // One strip for the whole image
@@ -813,7 +856,7 @@ void Image::writeTIF(const char *filename, ColorType colorType) {
     // If you want simple top-to-bottom (not strict TIFF spec but works for most viewers),
     // just loop y=0 to height-1
     switch (colorType) {
-        case ColorType::Grayscale: {
+        case 0: {
             for (int i = 0; i < m_height; i++) {
                 for (int j = 0; j < m_width; j++) {
                     file.write(reinterpret_cast<const char *>(&m_p_data[i][j]), sizeof(uint8_t));
@@ -821,10 +864,9 @@ void Image::writeTIF(const char *filename, ColorType colorType) {
             }
             break;
         }
-        case ColorType::RGB: {
+        case 1: {
             for (int i = 0; i < m_height; i++) {
                 for (int j = 0; j < m_width; j++) {
-                    // Write R, G, B: here, repeat grayscale value 3 times
                     uint8_t val = m_p_data[i][j];
                     file.write(reinterpret_cast<const char *>(&val), sizeof(uint8_t));
                     file.write(reinterpret_cast<const char *>(&val), sizeof(uint8_t));
@@ -836,4 +878,34 @@ void Image::writeTIF(const char *filename, ColorType colorType) {
     }
 
     file.close();
+    return true;
 }
+
+void Image::displayImage() {
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_real_distribution<double> dist(0, 10000);
+    int rand = dist(gen);
+    string filename = "cache/temp_" + std::to_string(rand) + ".tif";
+    this->writeTIF(filename.c_str(), Grayscale, false);
+#ifdef __APPLE__
+    string command = "open -a Preview \"" + filename + "\"";
+#elif defined(_WIN32)
+    string command = "start \"\" \"" + filename + "\"";
+#else
+    string command = "xdg-open \"" + filename + "\"";
+#endif
+    system(command.c_str());
+};
+
+void displayImage(const char *filename) {
+    string filenameStr = filename;
+#ifdef __APPLE__
+    string command = "open -a Preview \"" + filenameStr + "\"";
+#elif defined(_WIN32)
+    string command = "start \"\" \"" + filenameStr + "\"";
+#else
+    string command = "xdg-open \"" + filenameStr + "\"";
+#endif
+    system(command.c_str());
+};

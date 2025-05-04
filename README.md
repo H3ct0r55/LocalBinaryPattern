@@ -37,36 +37,37 @@ make
 
 ## Usage
 
-```
-Usage: LocalBinaryPattern [OPTIONS]
-
-Version: 0.1.alpha
-Released: 2025-05-03
-
 Options:
+```
   -h, --help
       Show this help manual and exit.
-
+```
+```
   -i <filename>
       Specify input file.
       Supported formats: .IMAT, .TGA
-
+```
+```
   -o <filename>
       Specify output file.
       Supported formats: .IMAT, .TGA, .TIF, .CSV
-
+```
+```
   -e <edgeType>
       Specify edge handling method.
       Accepted values: CropEdge, BlackEdge, WhiteEdge, MirrorEdge
-
+```
+```
   -L
       Perform Local Binary Pattern (LBP) computation.
-
+```
+```
   -H <histType>
       Perform histogram computation.
       Accepted values: Raw, Normalized
       The output histogram is written to a `.csv` or `.hist` file depending on the extension.
-
+```
+```
   -D
       Display the computed LBP image after processing.
 ```
@@ -101,7 +102,7 @@ Options:
 
 ## Documentation
 
-A detailed technical document is included in `DOCS.pdf` which outlines the LBP algorithm, histogram logic, edge case solutions, and architectural design.
+Coming Soon
 
 ## License
 

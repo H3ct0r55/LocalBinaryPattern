@@ -1,0 +1,9 @@
+# Ignore CMake build directories
+cmake-build*/
+!CMakeLists.txt
+
+# Ignore JetBrains IDE config
+.idea/
+
+# Ignore macOS system file
+.DS_Store

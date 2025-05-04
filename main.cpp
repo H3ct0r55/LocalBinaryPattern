@@ -288,11 +288,11 @@ int main(int argc, char* argv[]) {
                 break;
             }
             case TGA: {
-                writeSuccess = lbp.writeTGA(outputFile.string().c_str(), Grayscale, true);
+                writeSuccess = lbp.writeTGA(outputFile, Grayscale);
                 break;
             }
             case TIFF: {
-                writeSuccess = lbp.writeTIF(outputFile.string().c_str(), Grayscale, true);
+                writeSuccess = lbp.writeTIF(outputFile, Grayscale);
                 break;
             }
             default: {

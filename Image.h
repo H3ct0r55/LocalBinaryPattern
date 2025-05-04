@@ -57,7 +57,7 @@ using std::cout, std::ostream, std::endl, std::cerr, std::setprecision,
 std::fstream, std::ios, std::streamsize,
 std::random_device, std::mt19937, std::uniform_real_distribution,
 std::string, std::strlen, std::transform,
-std::filesystem::path;
+std::filesystem::path, std::filesystem::create_directories;
 
 
 class Image {
@@ -76,11 +76,11 @@ public:
 
     void randFill() const;
     void valFill(int value) const;
-    bool writeIMAT(const char* filename);
-    bool writeTGA(const char* filename, int colorType, bool forcePath);
-    bool writeTIF(const char* filename, int colorType, bool forcePath);
-    void readIMAT(const char* filename);
-    void readTGA(const char* filename);
+    bool writeIMAT(const path& filename);
+    bool writeTGA(const path& filename, int colorType);
+    bool writeTIF(const path& filename, int colorType);
+    void readIMAT(const path& filename);
+    void readTGA(const path& filename);
     void setVal(int x, int y, uint8_t val);
     void displayImage();
     uint8_t* unwrapLocal(int x, int y);
@@ -96,13 +96,13 @@ public:
 };
 
 uint8_t castToInt(const uint8_t* input);
-bool writeRHIST(uint32_t* histogram, const char* filename);
-bool writeRHISTCSV(uint32_t* histogram, const char* filename);
-bool writeNHIST(double* histogram, const char* filename);
-bool writeNHISTCSV(double* histogram, const char* filename);
-uint32_t* readRHIST(const char* filename);
-double* readNHIST(const char* filename);
+bool writeRHIST(uint32_t* histogram, const path& filename);
+bool writeRHISTCSV(uint32_t* histogram, const path& filename);
+bool writeNHIST(double* histogram, const path& filename);
+bool writeNHISTCSV(double* histogram, const path& filename);
+uint32_t* readRHIST(const path& filename);
+double* readNHIST(const path& filename);
 void clearCache();
-void displayImage(const char* filename);
+void displayImage(const path& filename);
 
 #endif //IMAGE_H

@@ -169,18 +169,17 @@ void Image::valFill(int value) const {
     }
 }
 
-bool Image::writeIMAT(const char *filename) {
-    string extFilename(filename);
-    if (extFilename.find('.') == string::npos) {
-        extFilename += ".imat";
-    } else {
-        extFilename = extFilename.substr(0, extFilename.find('.')) + ".imat";
-    }
-
+bool Image::writeIMAT(const path& filename) {
     if (m_width > 0 && m_height > 0 && m_p_data != nullptr) {
-        fstream file(extFilename, ios::out | ios::binary);
+
+        path dir = filename.parent_path();
+        if (!dir.empty() && !exists(dir)) {
+            create_directories(dir);
+        }
+
+        fstream file(filename, ios::out | ios::binary);
         if (!file.is_open()) {
-            cerr << "Error: Unable to open file: " << extFilename << ", no file written" << endl;
+            cerr << "Error: Unable to open file: " << filename.filename() << ", no file written" << endl;
             file.close();
             return false;
         }
@@ -195,17 +194,11 @@ bool Image::writeIMAT(const char *filename) {
     return false;
 }
 
-void Image::readIMAT(const char *filename) {
-    string extFilename(filename);
-    if (extFilename.find('.') == string::npos) {
-        extFilename += ".imat";
-    } else {
-        extFilename = extFilename.substr(0, extFilename.find('.')) + ".imat";
-    }
+void Image::readIMAT(const path& filename) {
 
-    fstream file(extFilename, ios::in | ios::binary);
+    fstream file(filename, ios::in | ios::binary);
     if (!file.is_open()) {
-        cerr << "Error: Unable to open file: " << extFilename << ", no file written" << endl;
+        cerr << "Error: Unable to open file: " << filename.filename() << ", no file written" << endl;
         return;
     }
     if (m_p_data != nullptr) {
@@ -363,17 +356,15 @@ uint8_t castToInt(const uint8_t *input) {
     return result;
 }
 
-bool writeRHIST(uint32_t *histogram, const char *filename) {
-    string extFilename(filename);
-    if (extFilename.find('.') == string::npos) {
-        extFilename += ".r.hist";
-    } else {
-        extFilename = extFilename.substr(0, extFilename.find('.')) + ".r.hist";
+bool writeRHIST(uint32_t *histogram, const path& filename) {
+    path dir = filename.parent_path();
+    if (!dir.empty() && !exists(dir)) {
+        create_directories(dir);
     }
     fstream file;
-    file.open(extFilename, ios::out | ios::binary);
+    file.open(filename, ios::out | ios::binary);
     if (!file.is_open()) {
-        cerr << "Error: Unable to open file: " << extFilename << ", no file written" << endl;
+        cerr << "Error: Unable to open file: " << filename.filename() << ", no file written" << endl;
         file.close();
         return false;
     }
@@ -382,17 +373,15 @@ bool writeRHIST(uint32_t *histogram, const char *filename) {
     return true;
 }
 
-bool writeRHISTCSV(uint32_t *histogram, const char *filename) {
-    string extFilename(filename);
-    if (extFilename.find('.') == string::npos) {
-        extFilename += ".r.csv";
-    } else {
-        extFilename = extFilename.substr(0, extFilename.find('.')) + ".r.csv";
+bool writeRHISTCSV(uint32_t *histogram, const path& filename) {
+    path dir = filename.parent_path();
+    if (!dir.empty() && !exists(dir)) {
+        create_directories(dir);
     }
     fstream file;
-    file.open(extFilename, ios::out | ios::binary);
+    file.open(filename, ios::out | ios::binary);
     if (!file.is_open()) {
-        cerr << "Error: Unable to open file: " << extFilename << ", no file written" << endl;
+        cerr << "Error: Unable to open file: " << filename.filename() << ", no file written" << endl;
         file.close();
         return false;
     }
@@ -405,17 +394,15 @@ bool writeRHISTCSV(uint32_t *histogram, const char *filename) {
     return true;
 }
 
-bool writeNHISTCSV(double *histogram, const char *filename) {
-    string extFilename(filename);
-    if (extFilename.find('.') == string::npos) {
-        extFilename += ".n.csv";
-    } else {
-        extFilename = extFilename.substr(0, extFilename.find('.')) + ".n.csv";
+bool writeNHISTCSV(double *histogram, const path& filename) {
+    path dir = filename.parent_path();
+    if (!dir.empty() && !exists(dir)) {
+        create_directories(dir);
     }
     fstream file;
-    file.open(extFilename, ios::out | ios::binary);
+    file.open(filename, ios::out | ios::binary);
     if (!file.is_open()) {
-        cerr << "Error: Unable to open file: " << extFilename << ", no file written" << endl;
+        cerr << "Error: Unable to open file: " << filename << ", no file written" << endl;
         file.close();
         return false;
     }
@@ -429,17 +416,15 @@ bool writeNHISTCSV(double *histogram, const char *filename) {
 }
 
 
-bool writeNHIST(double *histogram, const char *filename) {
-    string extFilename(filename);
-    if (extFilename.find('.') == string::npos) {
-        extFilename += ".n.hist";
-    } else {
-        extFilename = extFilename.substr(0, extFilename.find('.')) + ".n.hist";
+bool writeNHIST(double *histogram, const path& filename) {
+    path dir = filename.parent_path();
+    if (!dir.empty() && !exists(dir)) {
+        create_directories(dir);
     }
     fstream file;
-    file.open(extFilename, ios::out | ios::binary);
+    file.open(filename, ios::out | ios::binary);
     if (!file.is_open()) {
-        cerr << "Error: Unable to open file: " << extFilename << ", no file written" << endl;
+        cerr << "Error: Unable to open file: " << filename.filename() << ", no file written" << endl;
         file.close();
         return false;
     }
@@ -448,18 +433,16 @@ bool writeNHIST(double *histogram, const char *filename) {
     return true;
 }
 
-uint32_t *readRHIST(const char *filename) {
-    string extFilename(filename);
-    if (extFilename.find('.') == string::npos) {
-        extFilename += ".r.hist";
-    } else {
-        extFilename = extFilename.substr(0, extFilename.find('.')) + ".r.hist";
+uint32_t *readRHIST(const path& filename) {
+    path dir = filename.parent_path();
+    if (!dir.empty() && !exists(dir)) {
+        create_directories(dir);
     }
     auto *histogram = new uint32_t[256];
     fstream file;
-    file.open(extFilename, ios::in | ios::binary);
+    file.open(filename, ios::in | ios::binary);
     if (!file.is_open()) {
-        cerr << "Error: Unable to open file: " << extFilename << ", no file written" << endl;
+        cerr << "Error: Unable to open file: " << filename.filename() << ", no file written" << endl;
         return {};
     }
     file.read(reinterpret_cast<char *>(histogram), 256 * sizeof(uint32_t));
@@ -467,18 +450,16 @@ uint32_t *readRHIST(const char *filename) {
     return histogram;
 }
 
-double *readNHIST(const char *filename) {
-    string extFilename(filename);
-    if (extFilename.find('.') == string::npos) {
-        extFilename += ".n.hist";
-    } else {
-        extFilename = extFilename.substr(0, extFilename.find('.')) + ".n.hist";
+double *readNHIST(const path& filename) {
+    path dir = filename.parent_path();
+    if (!dir.empty() && !exists(dir)) {
+        create_directories(dir);
     }
     auto *histogram = new double[256];
     fstream file;
-    file.open(extFilename, ios::in | ios::binary);
+    file.open(filename, ios::in | ios::binary);
     if (!file.is_open()) {
-        cerr << "Error: Unable to open file: " << extFilename << ", no file written" << endl;
+        cerr << "Error: Unable to open file: " << filename.filename() << ", no file written" << endl;
         return {};
     }
     file.read(reinterpret_cast<char *>(histogram), 256 * sizeof(double));
@@ -551,24 +532,19 @@ Image Image::computeLBP(int edgeType) {
     }
 }
 
-bool Image::writeTGA(const char *filename, int colorType, bool forcePath) {
-    string extFilename(filename);
-    if (!forcePath) {
-        if (extFilename.find('.') == string::npos) {
-            extFilename += ".tga";
-        } else {
-            extFilename = extFilename.substr(0, extFilename.find('.')) + ".tga";
-        }
-    }
+bool Image::writeTGA(const path& filename, int colorType) {
 
     if (m_p_data == nullptr || m_width <= 0 || m_height <= 0) {
         cerr << "Error: Empty or invalid image, not writing TGA." << endl;
         return false;
     }
-
-    fstream file(extFilename, ios::out | ios::binary);
+    path dir = filename.parent_path();
+    if (!dir.empty() && !exists(dir)) {
+        create_directories(dir);
+    }
+    fstream file(filename, ios::out | ios::binary);
     if (!file.is_open()) {
-        cerr << "Error: Unable to open file: " << extFilename << ", no file written" << endl;
+        cerr << "Error: Unable to open file: " << filename.filename() << ", no file written" << endl;
         file.close();
         return false;
     }
@@ -622,17 +598,11 @@ bool Image::writeTGA(const char *filename, int colorType, bool forcePath) {
     return true;
 }
 
-void Image::readTGA(const char *filename) {
-    string extFilename(filename);
-    if (extFilename.find('.') == string::npos) {
-        extFilename += ".tga";
-    } else {
-        extFilename = extFilename.substr(0, extFilename.find('.')) + ".tga";
-    }
+void Image::readTGA(const path& filename) {
 
-    fstream file(extFilename, ios::in | ios::binary);
+    fstream file(filename, ios::in | ios::binary);
     if (!file.is_open()) {
-        cerr << "Error: Unable to open file: " << extFilename << ", no file read" << endl;
+        cerr << "Error: Unable to open file: " << filename.filename() << ", no file read" << endl;
         return;
     }
 
@@ -726,36 +696,19 @@ void Image::setVal(int x, int y, uint8_t val) {
     m_p_data[y][x] = val;
 }
 
-bool Image::writeTIF(const char *filename, int colorType, bool forcePath) {
-    string extFilename(filename);
-    if (!forcePath) {
-        if (extFilename.find('.') == string::npos) {
-            extFilename += ".tif";
-        } else {
-            extFilename = extFilename.substr(0, extFilename.find('.')) + ".tif";
-        }
-    }
-
-    // Ensure the directory portion of the path exists (e.g. "cache/myfile.tif")
-    path outPath(extFilename);
-    path dir = outPath.parent_path();
-    if (!dir.empty() && !exists(dir)) {
-        std::error_code ec;
-        if (!create_directories(dir, ec) && ec) {
-            std::cerr << "Error: Unable to create directory: " << dir << " (" << ec.message()
-                      << "), no file written" << std::endl;
-            return false;
-        }
-    }
+bool Image::writeTIF(const path& filename, int colorType) {
 
     if (m_p_data == nullptr || m_width <= 0 || m_height <= 0) {
         cerr << "Error: Empty or invalid image, not writing TIF." << endl;
         return false;
     }
-
-    fstream file(extFilename, ios::out | ios::binary);
+    path dir = filename.parent_path();
+    if (!dir.empty() && !exists(dir)) {
+        create_directories(dir);
+    }
+    fstream file(filename, ios::out | ios::binary);
     if (!file.is_open()) {
-        cerr << "Error: Unable to open file: " << extFilename << ", no file written" << endl;
+        cerr << "Error: Unable to open file: " << filename.filename() << ", no file written" << endl;
         file.close();
         return false;
     }
@@ -887,7 +840,7 @@ void Image::displayImage() {
     uniform_real_distribution<double> dist(0, 10000);
     int rand = dist(gen);
     string filename = "cache/temp_" + std::to_string(rand) + ".tif";
-    this->writeTIF(filename.c_str(), Grayscale, false);
+    this->writeTIF(filename, Grayscale);
 #ifdef __APPLE__
     string command = "open -a Preview \"" + filename + "\"";
 #elif defined(_WIN32)
@@ -898,7 +851,7 @@ void Image::displayImage() {
     system(command.c_str());
 };
 
-void displayImage(const char *filename) {
+void displayImage(const path& filename) {
     string filenameStr = filename;
 #ifdef __APPLE__
     string command = "open -a Preview \"" + filenameStr + "\"";

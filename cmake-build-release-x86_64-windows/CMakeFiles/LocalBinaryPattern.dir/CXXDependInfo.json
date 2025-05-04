@@ -1,0 +1,18 @@
+{
+	"bmi-installation" : null,
+	"compiler-frontend-variant" : "GNU",
+	"compiler-id" : "GNU",
+	"compiler-simulate-id" : "",
+	"config" : "Release",
+	"cxx-modules" : {},
+	"dir-cur-bld" : "/Users/hector/CLionProjects/S2/LocalBinaryPattern/cmake-build-release-x86_64-windows",
+	"dir-cur-src" : "/Users/hector/CLionProjects/S2/LocalBinaryPattern",
+	"dir-top-bld" : "/Users/hector/CLionProjects/S2/LocalBinaryPattern/cmake-build-release-x86_64-windows",
+	"dir-top-src" : "/Users/hector/CLionProjects/S2/LocalBinaryPattern",
+	"exports" : [],
+	"forward-modules-from-target-dirs" : [],
+	"include-dirs" : [],
+	"language" : "CXX",
+	"linked-target-dirs" : [],
+	"module-dir" : "/Users/hector/CLionProjects/S2/LocalBinaryPattern/cmake-build-release-x86_64-windows/CMakeFiles/LocalBinaryPattern.dir"
+}

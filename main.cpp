@@ -205,7 +205,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (input) {
-        inputType = detectFileType(toLowercase(inputFile.extension()), true);
+        inputType = detectFileType(toLowercase(inputFile.extension().string()), true);
         if (inputType == UNSUPPORTED_FILETYPE) {
             cout << "Error: input file type: " << inputFile.extension() << " not supported" << endl;
             flagErrors = true;
@@ -213,7 +213,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (output) {
-        outputType = detectFileType(toLowercase(outputFile.extension()), false);
+        outputType = detectFileType(toLowercase(outputFile.extension().string()), false);
         if (outputType == UNSUPPORTED_FILETYPE) {
             cout << "Error: output file type: " << outputFile.extension() <<" not supported" << endl;
             flagErrors = true;
@@ -267,11 +267,11 @@ int main(int argc, char* argv[]) {
         Image image;
         switch (inputType) {
             case IMAT: {
-                image.readIMAT(inputFile.c_str());
+                image.readIMAT(inputFile.string().c_str());
                 break;
             }
             case TGA: {
-                image.readTGA(inputFile.c_str());
+                image.readTGA(inputFile.string().c_str());
                 break;
             }
             default: {
@@ -279,19 +279,20 @@ int main(int argc, char* argv[]) {
                 return 1;
             }
         }
+
         Image lbp = image.computeLBP(edgeType);
         bool writeSuccess = false;
         switch (outputType) {
             case IMAT: {
-                writeSuccess = lbp.writeIMAT(outputFile.c_str());
+                writeSuccess = lbp.writeIMAT(outputFile.string().c_str());
                 break;
             }
             case TGA: {
-                writeSuccess = lbp.writeTGA(outputFile.c_str(), Grayscale, true);
+                writeSuccess = lbp.writeTGA(outputFile.string().c_str(), Grayscale, true);
                 break;
             }
             case TIFF: {
-                writeSuccess = lbp.writeTIF(outputFile.c_str(), Grayscale, true);
+                writeSuccess = lbp.writeTIF(outputFile.string().c_str(), Grayscale, true);
                 break;
             }
             default: {
@@ -305,18 +306,18 @@ int main(int argc, char* argv[]) {
             cout << "Error while writing output file " << outputFile << endl;
         }
         if (displayOutput) {
-            displayImage(outputFile.c_str());
+            displayImage(outputFile.string().c_str());
         }
 
     } else if (computeType == Histogram) {
         Image image;
         switch (inputType) {
             case IMAT: {
-                image.readIMAT(inputFile.c_str());
+                image.readIMAT(inputFile.string().c_str());
                 break;
             }
             case TGA: {
-                image.readTGA(inputFile.c_str());
+                image.readTGA(inputFile.string().c_str());
                 break;
             }
             default: {
@@ -333,11 +334,11 @@ int main(int argc, char* argv[]) {
                 rHist = lbp.computeRawHist();
                 switch (outputType) {
                     case HIST: {
-                        writeSuccess = writeRHIST(rHist, outputFile.c_str());
+                        writeSuccess = writeRHIST(rHist, outputFile.string().c_str());
                         break;
                     }
                     case CSV: {
-                        writeSuccess = writeRHISTCSV(rHist, outputFile.c_str());
+                        writeSuccess = writeRHISTCSV(rHist, outputFile.string().c_str());
                         break;
                     }
                     default: {
@@ -351,11 +352,11 @@ int main(int argc, char* argv[]) {
                 nHist = lbp.computeNormHist();
                 switch (outputType) {
                     case HIST: {
-                        writeSuccess = writeNHIST(nHist, outputFile.c_str());
+                        writeSuccess = writeNHIST(nHist, outputFile.string().c_str());
                         break;
                     }
                     case CSV: {
-                        writeSuccess = writeNHISTCSV(nHist, outputFile.c_str());
+                        writeSuccess = writeNHISTCSV(nHist, outputFile.string().c_str());
                         break;
                     }
                     default: {

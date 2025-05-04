@@ -10,7 +10,17 @@ add_executable(LocalBinaryPattern main.cpp
         help_text.h)
 
 # Ensure maximum stripping of symbols from the final binary
-set(STRIP_EXECUTABLE /opt/homebrew/bin/aarch64-unknown-linux-gnu-strip)
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
+    set(STRIP_EXECUTABLE /opt/homebrew/bin/aarch64-unknown-linux-gnu-strip)
+elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+    set(STRIP_EXECUTABLE /opt/homebrew/bin/x86_64-unknown-linux-gnu-strip)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    set(STRIP_EXECUTABLE /opt/homebrew/bin/x86_64-w64-mingw32-strip)
+    add_custom_command(TARGET LocalBinaryPattern POST_BUILD
+            COMMAND ${STRIP_EXECUTABLE} $<TARGET_FILE:LocalBinaryPattern>
+    )
+endif()
+
 add_custom_command(TARGET LocalBinaryPattern POST_BUILD
-        COMMAND ${STRIP_EXECUTABLE} $<TARGET_FILE:LocalBinaryPattern>
+    COMMAND ${STRIP_EXECUTABLE} $<TARGET_FILE:LocalBinaryPattern>
 )

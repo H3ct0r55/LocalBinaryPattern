@@ -72,7 +72,7 @@ build CMakeFiles/LocalBinaryPattern.dir/Image.cpp.o: CXX_COMPILER__LocalBinaryPa
 build LocalBinaryPattern: CXX_EXECUTABLE_LINKER__LocalBinaryPattern_Debug CMakeFiles/LocalBinaryPattern.dir/main.cpp.o CMakeFiles/LocalBinaryPattern.dir/Image.cpp.o
   FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk
   OBJECT_DIR = CMakeFiles/LocalBinaryPattern.dir
-  POST_BUILD = cd /Users/hector/CLionProjects/S2/LocalBinaryPattern/cmake-build-debug && /opt/homebrew/bin/aarch64-unknown-linux-gnu-strip /Users/hector/CLionProjects/S2/LocalBinaryPattern/cmake-build-debug/LocalBinaryPattern
+  POST_BUILD = cd /Users/hector/CLionProjects/S2/LocalBinaryPattern/cmake-build-debug && /Users/hector/CLionProjects/S2/LocalBinaryPattern/cmake-build-debug/LocalBinaryPattern
   PRE_LINK = :
   TARGET_FILE = LocalBinaryPattern
   TARGET_PDB = LocalBinaryPattern.dbg

@@ -7,3 +7,5 @@ cmake-build*/
 
 # Ignore macOS system file
 .DS_Store
+
+*.cmake

@@ -1,4 +1,0 @@
-/Applications/CLion.app/Contents/bin/cmake/mac/aarch64/bin/cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=/Applications/CLion.app/Contents/bin/ninja/mac/aarch64/ninja -DCMAKE_TOOLCHAIN_FILE=../x86_64-linux-toolchain.cmake -DCMAKE_BUILD_TYPE=Release -G Ninja -S /Users/hector/CLionProjects/S2/LocalBinaryPattern -B /Users/hector/CLionProjects/S2/LocalBinaryPattern/cmake-build-release-x86_64-linux
--- Configuring done (0.0s)
--- Generating done (0.0s)
--- Build files have been written to: /Users/hector/CLionProjects/S2/LocalBinaryPattern/cmake-build-release-x86_64-linux

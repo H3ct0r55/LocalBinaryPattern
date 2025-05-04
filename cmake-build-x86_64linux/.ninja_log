@@ -1,5 +1,0 @@
-# ninja log v6
-1	1355	1746367251211470257	CMakeFiles/LocalBinaryPattern.dir/Image.cpp.o	a5f69fb9f17f84a0
-10	56	1746377423664033225	build.ninja	81523dcfbcd61df4
-2	602	1746367484520517485	LocalBinaryPattern	62ecf59ec0d27900
-1	723	1746367251210861084	CMakeFiles/LocalBinaryPattern.dir/main.cpp.o	7984c79ee2e3c816

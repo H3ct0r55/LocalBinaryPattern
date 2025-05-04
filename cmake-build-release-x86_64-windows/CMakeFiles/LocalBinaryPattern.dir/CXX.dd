@@ -1,5 +1,0 @@
-ninja_dyndep_version = 1.0
-build CMakeFiles/LocalBinaryPattern.dir/main.cpp.obj: dyndep
-
-build CMakeFiles/LocalBinaryPattern.dir/Image.cpp.obj: dyndep
-

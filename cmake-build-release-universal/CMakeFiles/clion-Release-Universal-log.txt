@@ -1,4 +1,0 @@
-/Applications/CLion.app/Contents/bin/cmake/mac/aarch64/bin/cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=/Applications/CLion.app/Contents/bin/ninja/mac/aarch64/ninja -DCMAKE_OSX_ARCHITECTURES=arm64;x86_64 -G Ninja -S /Users/hector/CLionProjects/S2/LocalBinaryPattern -B /Users/hector/CLionProjects/S2/LocalBinaryPattern/cmake-build-release-universal
--- Configuring done (0.0s)
--- Generating done (0.0s)
--- Build files have been written to: /Users/hector/CLionProjects/S2/LocalBinaryPattern/cmake-build-release-universal

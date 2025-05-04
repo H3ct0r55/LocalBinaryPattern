@@ -267,11 +267,11 @@ int main(int argc, char* argv[]) {
         Image image;
         switch (inputType) {
             case IMAT: {
-                image.readIMAT(inputFile.string().c_str());
+                image.readIMAT(inputFile);
                 break;
             }
             case TGA: {
-                image.readTGA(inputFile.string().c_str());
+                image.readTGA(inputFile);
                 break;
             }
             default: {
@@ -284,7 +284,7 @@ int main(int argc, char* argv[]) {
         bool writeSuccess = false;
         switch (outputType) {
             case IMAT: {
-                writeSuccess = lbp.writeIMAT(outputFile.string().c_str());
+                writeSuccess = lbp.writeIMAT(outputFile);
                 break;
             }
             case TGA: {
@@ -306,18 +306,18 @@ int main(int argc, char* argv[]) {
             cout << "Error while writing output file " << outputFile << endl;
         }
         if (displayOutput) {
-            displayImage(outputFile.string().c_str());
+            displayImage(outputFile);
         }
 
     } else if (computeType == Histogram) {
         Image image;
         switch (inputType) {
             case IMAT: {
-                image.readIMAT(inputFile.string().c_str());
+                image.readIMAT(inputFile);
                 break;
             }
             case TGA: {
-                image.readTGA(inputFile.string().c_str());
+                image.readTGA(inputFile);
                 break;
             }
             default: {
@@ -334,11 +334,11 @@ int main(int argc, char* argv[]) {
                 rHist = lbp.computeRawHist();
                 switch (outputType) {
                     case HIST: {
-                        writeSuccess = writeRHIST(rHist, outputFile.string().c_str());
+                        writeSuccess = writeRHIST(rHist, outputFile);
                         break;
                     }
                     case CSV: {
-                        writeSuccess = writeRHISTCSV(rHist, outputFile.string().c_str());
+                        writeSuccess = writeRHISTCSV(rHist, outputFile);
                         break;
                     }
                     default: {
@@ -352,11 +352,11 @@ int main(int argc, char* argv[]) {
                 nHist = lbp.computeNormHist();
                 switch (outputType) {
                     case HIST: {
-                        writeSuccess = writeNHIST(nHist, outputFile.string().c_str());
+                        writeSuccess = writeNHIST(nHist, outputFile);
                         break;
                     }
                     case CSV: {
-                        writeSuccess = writeNHISTCSV(nHist, outputFile.string().c_str());
+                        writeSuccess = writeNHISTCSV(nHist, outputFile);
                         break;
                     }
                     default: {

@@ -245,7 +245,7 @@ ostream &operator<<(ostream &os, const Image &image) {
 }
 
 
-uint8_t *Image::unwrapLocal(int x, int y) {
+uint8_t *Image::unwrapLocal(int x, int y, int startPos, int rotation) {
     if (x > 0 && y > 0 && x < m_width - 1 && y < m_height - 1) {
         auto *temp = new uint8_t[8];
         for (int i = 0; i < 3; i++) {
@@ -261,6 +261,22 @@ uint8_t *Image::unwrapLocal(int x, int y) {
             temp[i + 4] = m_p_data[y + 1][x + 1 - i];
         }
         temp[7] = m_p_data[y][x - 1];
+        if (startPos != 0) {
+            auto* shift = new uint8_t[8];
+            for (int i = 0; i < 8; i++) {
+                shift[i] = temp[(startPos + i) % 8];
+            }
+            delete[] temp;
+            temp = shift;
+        }
+        if (rotation != 0) {
+            auto *rotate = new uint8_t[8];
+            for (int i = 0; i < 8; i++) {
+                rotate[i] = temp[(8 - i) % 8];
+            }
+            delete[] temp;
+            temp = rotate;
+        }
         return temp;
     }
     cerr << "ERROR: Unable to unwrapLocal for edge pixels, exiting...";
@@ -291,8 +307,8 @@ uint8_t *Image::unwrapLocal(int x, int y) {
         }
 }*/
 
-uint8_t *Image::localLBP(int x, int y) {
-    uint8_t *temp = this->unwrapLocal(x, y);
+uint8_t *Image::localLBP(int x, int y, int startPos, int rotation) {
+    uint8_t *temp = this->unwrapLocal(x, y, startPos, rotation);
     auto LBP = new uint8_t[8];
     for (int i = 0; i < 8; i++) {
         if (temp[i] < m_p_data[y][x]) {
@@ -479,14 +495,14 @@ double *readNHIST(const path& filename) {
 }
 
 
-Image Image::computeLBP(int edgeType) {
+Image Image::computeLBP(int edgeType, int startPos, int rotation) {
     switch (edgeType) {
         case 0 : {
             Image lbp(m_width - 2, m_height - 2);
             for (int i = 0; i < m_height - 2; i++) {
                 for (int j = 0; j < m_width - 2; j++) {
                     if (lbp.m_p_data) {
-                        lbp.m_p_data[i][j] = castToInt(this->localLBP(j + 1, i + 1));
+                        lbp.m_p_data[i][j] = castToInt(this->localLBP(j + 1, i + 1, startPos, rotation));
                     } else {
                         cerr << "Error: Unable to calculate LBP for edgeType: CropEdge, of dimension smaller than 3x3" << endl;
                     }
@@ -500,7 +516,7 @@ Image Image::computeLBP(int edgeType) {
             for (int i = 0; i < m_height; i++) {
                 for (int j = 0; j < m_width; j++) {
                     if (lbp.m_p_data) {
-                        lbp.m_p_data[i][j] = castToInt(tempBorder.localLBP(j + 1, i + 1));
+                        lbp.m_p_data[i][j] = castToInt(tempBorder.localLBP(j + 1, i + 1, startPos, rotation));
                     } else {
                         cerr << "Error: Unable to calculate LBP for edgeType: WhiteBorder, of dimension smaller than 1x1" << endl;
                     }
@@ -514,7 +530,7 @@ Image Image::computeLBP(int edgeType) {
             for (int i = 0; i < m_height; i++) {
                 for (int j = 0; j < m_width; j++) {
                     if (lbp.m_p_data) {
-                        lbp.m_p_data[i][j] = castToInt(tempBorder.localLBP(j + 1, i + 1));
+                        lbp.m_p_data[i][j] = castToInt(tempBorder.localLBP(j + 1, i + 1, startPos, rotation));
                     } else {
                         cerr << "Error: Unable to calculate LBP for edgeType: BlackBorder, of dimension smaller than 1x1" << endl;
                     }
@@ -528,7 +544,7 @@ Image Image::computeLBP(int edgeType) {
             for (int i = 0; i < m_height; i++) {
                 for (int j = 0; j < m_width; j++) {
                     if (lbp.m_p_data) {
-                        lbp.m_p_data[i][j] = castToInt(tempBorder.localLBP(j + 1, i + 1));
+                        lbp.m_p_data[i][j] = castToInt(tempBorder.localLBP(j + 1, i + 1, startPos, rotation));
                     } else {
                         cerr << "Error: Unable to calculate LBP for edgeType: MirrorBorder, of dimension smaller than 1x1" << endl;
                     }

@@ -41,6 +41,26 @@
 #define UNSUPPORTED_HISTTYPE (-1)
 #endif
 
+#ifndef RotationType
+#define RotationType
+#define UNSUPPORTED_ROTATION (-1)
+#define CW 0
+#define CCW 1
+#endif
+
+#ifndef StartPosition
+#define StartPosition
+#define UNSUPPORTED_POSITION (-1)
+#define TL 0
+#define TC 1
+#define TR 2
+#define CR 3
+#define BR 4
+#define BC 5
+#define BL 6
+#define CL 7
+#endif
+
 #ifndef IMAGE_H
 #define IMAGE_H
 
@@ -84,10 +104,10 @@ public:
     void setVal(int x, int y, uint8_t val);
     void fillRange(int startX, int startY, int endX, int endY, uint8_t val);
     void displayImage();
-    uint8_t* unwrapLocal(int x, int y);
+    uint8_t* unwrapLocal(int x, int y, int startPos, int rotation);
     //uint8_t* unwrapLocal(int x, int y, int edgeType);
-    uint8_t* localLBP(int x, int y);
-    Image computeLBP(int edgeType);
+    uint8_t* localLBP(int x, int y, int startPos, int rotation);
+    Image computeLBP(int edgeType, int startPos, int rotation);
     uint32_t* computeRawHist();
     double* computeNormHist();
 

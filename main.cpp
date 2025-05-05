@@ -44,6 +44,24 @@ int detectHistType(const string& hist) {
     return UNSUPPORTED_HISTTYPE;
 }
 
+int detectRotationType(const string& rot) {
+    if (rot == "cw") return CW;
+    if (rot == "ccw./L") return CCW;
+    return UNSUPPORTED_ROTATION;
+}
+
+int detectStartPosition(const string& pos) {
+    if (pos == "tl") return TL;
+    if (pos == "tc") return TC;
+    if (pos == "tr") return TR;
+    if (pos == "cr") return CR;
+    if (pos == "bl") return BL;
+    if (pos == "bc") return BC;
+    if (pos == "br") return BR;
+    if (pos == "cl") return CL;
+    return UNSUPPORTED_POSITION;
+}
+
 bool matchOutput(const int outputType, const int computeType) {
     if (computeType == LocalBinaryPattern && outputType != CSV && outputType != HIST) return true;
     if (computeType == Histogram && (outputType == CSV || outputType == HIST)) return true;
@@ -68,6 +86,12 @@ int main(int argc, char* argv[]) {
     int histType = UNSUPPORTED_HISTTYPE;
 
     bool displayOutput = false;
+
+    bool rotationSpecified = false;
+    int rotationType = CW;
+
+    bool startPositionSpecified = false;
+    int startPosition = TL;
 
     bool flagErrors = false;
 
@@ -207,6 +231,32 @@ int main(int argc, char* argv[]) {
                     displayOutput = true;
                     break;
                 }
+                case 'P': {
+                    if (!startPositionSpecified) {
+                        startPositionSpecified = true;
+                        startPosition = detectStartPosition(toLowercase(argv[i+1]));
+                        if (startPosition == UNSUPPORTED_POSITION) {
+                            cout << "Error: unknown start position \"" << argv[i+1] << "\". ";
+                            flagErrors = true;
+                        }
+                    } else {
+                        cout << "Error: cannot specify more than one start position" << endl;
+                    }
+                    break;
+                }
+                case 'R': {
+                    if (!rotationSpecified) {
+                        rotationSpecified = true;
+                        rotationType = detectRotationType(toLowercase(argv[i+1]));
+                        if (rotationType == UNSUPPORTED_ROTATION) {
+                            cout << "Error: unknown rotation type \"" << argv[i+1] << "\". ";
+                            flagErrors = true;
+                        }
+                    } else {
+                        cout << "Error: cannot specify more than one rotation type" << endl;
+                    }
+                    break;
+                }
                 default: {
                     cout << "Error: unknown option \"" << argv[i] << "\"" << endl;
                     flagErrors = true;
@@ -292,7 +342,7 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        Image lbp = image.computeLBP(edgeType);
+        Image lbp = image.computeLBP(edgeType, startPosition, rotationType);
         bool writeSuccess = false;
         switch (outputType) {
             case IMAT: {
@@ -337,7 +387,7 @@ int main(int argc, char* argv[]) {
                 return 0;
             }
         }
-        Image lbp = image.computeLBP(edgeType);
+        Image lbp = image.computeLBP(edgeType, startPosition, rotationType);
         bool writeSuccess = false;
         uint32_t* rHist;
         double* nHist;

@@ -55,7 +55,7 @@
 //#include <opencv2/opencv.hpp>
 using std::cout, std::ostream, std::endl, std::cerr, std::setprecision,
 std::fstream, std::ios, std::streamsize,
-std::random_device, std::mt19937, std::uniform_real_distribution,
+std::random_device, std::mt19937, std::uniform_real_distribution, std::uniform_int_distribution,
 std::string, std::strlen, std::transform,
 std::filesystem::path, std::filesystem::create_directories;
 
@@ -82,6 +82,7 @@ public:
     void readIMAT(const path& filename);
     void readTGA(const path& filename);
     void setVal(int x, int y, uint8_t val);
+    void fillRange(int startX, int startY, int endX, int endY, uint8_t val);
     void displayImage();
     uint8_t* unwrapLocal(int x, int y);
     //uint8_t* unwrapLocal(int x, int y, int edgeType);
@@ -104,5 +105,6 @@ uint32_t* readRHIST(const path& filename);
 double* readNHIST(const path& filename);
 void clearCache();
 void displayImage(const path& filename);
+void displayTestImage();
 
 #endif //IMAGE_H

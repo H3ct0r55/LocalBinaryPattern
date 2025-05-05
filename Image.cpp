@@ -169,6 +169,17 @@ void Image::valFill(int value) const {
     }
 }
 
+void Image::fillRange(int startX, int startY, int endX, int endY, uint8_t val) {
+    if (m_width > 0 && m_height > 0 && m_p_data != nullptr) {
+        for (int i = startY; i < endY; i++) {
+            for (int j = startX; j < endX; j++) {
+                m_p_data[i][j] = val;
+            }
+        }
+    }
+}
+
+
 bool Image::writeIMAT(const path& filename) {
     if (m_width > 0 && m_height > 0 && m_p_data != nullptr) {
 
@@ -837,7 +848,7 @@ bool Image::writeTIF(const path& filename, int colorType) {
 void Image::displayImage() {
     random_device rd;
     mt19937 gen(rd());
-    uniform_real_distribution<double> dist(0, 10000);
+    uniform_real_distribution<double> dist(0, 100000);
     int rand = dist(gen);
     string filename = "cache/temp_" + std::to_string(rand) + ".tif";
     this->writeTIF(filename, Grayscale);
@@ -849,10 +860,12 @@ void Image::displayImage() {
     string command = "xdg-open \"" + filename + "\"";
 #endif
     system(command.c_str());
-};
+    // std::filesystem::remove(filename);
+    // std::filesystem::remove_all("cache");
+}
 
 void displayImage(const path& filename) {
-    string filenameStr = filename;
+    string filenameStr = filename.string();
 #ifdef __APPLE__
     string command = "open -a Preview \"" + filenameStr + "\"";
 #elif defined(_WIN32)
@@ -862,3 +875,26 @@ void displayImage(const path& filename) {
 #endif
     system(command.c_str());
 };
+
+void displayTestImage() {
+    Image image(1920, 1080, 0); // black background
+
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<> distX(0, 1920 - 1);
+    uniform_int_distribution<> distY(0, 1080 - 1);
+    uniform_int_distribution<> distSize(5, 50); // square sizes
+
+    for (int i = 0; i < 100; ++i) {
+        int x = distX(gen);
+        int y = distY(gen);
+        int size = distSize(gen);
+        for (int dy = 0; dy < size && y + dy < 1080; ++dy) {
+            for (int dx = 0; dx < size && x + dx < 1920; ++dx) {
+                image.setVal(x + dx, y + dy, 255);
+            }
+        }
+    }
+
+    image.displayImage();
+}

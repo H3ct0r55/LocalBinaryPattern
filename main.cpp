@@ -6,7 +6,8 @@
 namespace fs = std::filesystem;
 using std::cout, std::endl;
 string NAME = "LocalBinaryPattern";
-string RELEASE = "0.1.alpha";
+string VERSION = "v0.1.0";
+string RELEASE = "0.1.0-alpha";
 string RELEASE_DATE = "2025-05-03";
 
 
@@ -73,9 +74,20 @@ int main(int argc, char* argv[]) {
     for (int i = 1; i < argc; i++) {
         if (argv[i][0] == '-' && argv[i][1] != '-') {
             switch (argv[i][1]) {
+                case 'v': {
+                    cout << NAME << " " << VERSION << "\n\tRelease: " << RELEASE << "\n\tRelease Date: " << RELEASE_DATE << endl;
+                    return 0;
+                    break;
+                }
+                case 't': {
+                    displayTestImage();
+                    return 0;
+                    break;
+                }
                 case 'h': {
                     printHelp();
                     return 0;
+                    break;
                 }
                 case 'i': {
                     if (!input) {
@@ -241,7 +253,7 @@ int main(int argc, char* argv[]) {
 
     if (flagErrors) {
         cout << "Run with -h flag for the help manual" << endl;
-        return 1;
+        return 0;
     }
 
     if (!output) {
@@ -276,7 +288,7 @@ int main(int argc, char* argv[]) {
             }
             default: {
                 cout << "Uncaught Runtime Error: Invalid input type \"" << inputType << "\"" << endl;
-                return 1;
+                return 0;
             }
         }
 
@@ -297,7 +309,7 @@ int main(int argc, char* argv[]) {
             }
             default: {
                 cout << "Uncaught Runtime Error: Invalid output type \"" << outputType << "\"" << endl;
-                return 1;
+                return 0;
             }
         }
         if (writeSuccess) {
@@ -322,7 +334,7 @@ int main(int argc, char* argv[]) {
             }
             default: {
                 cout << "Uncaught Runtime Error: Invalid input type \"" << inputType << "\"" << endl;
-                return 1;
+                return 0;
             }
         }
         Image lbp = image.computeLBP(edgeType);
@@ -343,7 +355,7 @@ int main(int argc, char* argv[]) {
                     }
                     default: {
                         cout << "Uncaught Runtime Error: Invalid outputType" << endl;
-                        return 1;
+                        return 0;
                     }
                 }
                 break;
@@ -361,7 +373,7 @@ int main(int argc, char* argv[]) {
                     }
                     default: {
                         cout << "Uncaught Runtime Error: Invalid outputType" << endl;
-                        return 1;
+                        return 0;
                     }
                 }
                 break;

@@ -7,7 +7,8 @@ set(CMAKE_CXX_STANDARD 20)
 add_executable(LocalBinaryPattern main.cpp
         Image.cpp
         Image.h
-        help_text.h)
+        help_text.h
+)
 
 # Ensure maximum stripping of symbols from the final binary
 if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")

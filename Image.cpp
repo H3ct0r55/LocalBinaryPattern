@@ -286,42 +286,19 @@ uint8_t *Image::unwrapLocal(int x, int y, int startPos, int rotation) {
 int Image::startPosRLBP(int x, int y) {
     auto* temp = this->unwrapLocal(x, y, TL, CW);
     int largest = 0;
+    int largestVal = 0;
     int largestPos = 0;
     for (int i = 0; i < 8; i++) {
         int val = static_cast<int>(temp[i]);
         int diff = abs(val-m_p_data[y][x]);
         if (diff > largest) {
             largest = diff;
+            largestVal = m_p_data[y][x];
             largestPos = i;
         }
     }
     return largestPos;
 }
-
-
-/*uint8_t *Image::unwrapLocal(int x, int y, int edgeType) {
-        switch (edgeType) {
-            case 0: {
-                return this->unwrapLocal(x, y);
-            }
-            case 1: {
-                Image temp1(*this, 1, 0);
-                return temp1.unwrapLocal(x+1, y+1);
-            }
-            case 2: {
-                Image temp2(*this, 1, 255);
-                return temp2.unwrapLocal(x+1, y+1);
-            }
-            case 3: {
-                Image temp3(*this, 1);
-                return temp3.unwrapLocal(x+1, y+1);
-            }
-            default: {
-                cerr << "ERROR: Unknown unwrap edge type: " << edgeType << " exiting..." ;
-                exit(11);
-            }
-        }
-}*/
 
 uint8_t *Image::localLBP(int x, int y, int startPos, int rotation) {
     uint8_t *temp = this->unwrapLocal(x, y, startPos, rotation);

@@ -43,7 +43,7 @@ void LaunchInteractiveWizard() {
             string inputStr;
             getline(cin, inputStr);
             input = path(inputStr);
-            inputFileType = detectFileType(input.extension(), true);
+            inputFileType = detectFileType(input.extension().string(), true);
             if (inputFileType != IMAT && inputFileType != TGA) {
                 cout << "Unsupported input file type: " << input.extension() << ". Only .imat and .tga are supported." << endl;
                 continue;
@@ -139,7 +139,7 @@ void LaunchInteractiveWizard() {
             string outputStr;
             getline(cin, outputStr);
             output = path(outputStr);
-            outputFileType = detectFileType(output.extension(), false);
+            outputFileType = detectFileType(output.extension().string(), false);
 
             bool validOutput = false;
             if (computeType == LocalBinaryPattern) {

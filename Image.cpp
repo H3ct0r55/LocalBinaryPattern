@@ -283,6 +283,22 @@ uint8_t *Image::unwrapLocal(int x, int y, int startPos, int rotation) {
     exit(10);
 }
 
+int Image::startPosRLBP(int x, int y) {
+    auto* temp = this->unwrapLocal(x, y, TL, CW);
+    int largest = 0;
+    int largestPos = 0;
+    for (int i = 0; i < 8; i++) {
+        int val = static_cast<int>(temp[i]);
+        int diff = abs(val-m_p_data[y][x]);
+        if (diff > largest) {
+            largest = diff;
+            largestPos = i;
+        }
+    }
+    return largestPos;
+}
+
+
 /*uint8_t *Image::unwrapLocal(int x, int y, int edgeType) {
         switch (edgeType) {
             case 0: {
@@ -586,7 +602,8 @@ Image Image::computeRILBP(int edgeType) {
             for (int i = 0; i < m_height - 2; i++) {
                 for (int j = 0; j < m_width - 2; j++) {
                     if (lbp.m_p_data) {
-                        lbp.m_p_data[i][j] = castToInt(this->localLBP(j + 1, i + 1, TL, CW), true);
+                        int startPos = this->startPosRLBP(j + 1, i + 1);
+                        lbp.m_p_data[i][j] = castToInt(this->localLBP(j + 1, i + 1, startPos, CW));
                     } else {
                         cerr << "Error: Unable to calculate LBP for edgeType: CropEdge, of dimension smaller than 3x3" << endl;
                     }
@@ -600,7 +617,8 @@ Image Image::computeRILBP(int edgeType) {
             for (int i = 0; i < m_height; i++) {
                 for (int j = 0; j < m_width; j++) {
                     if (lbp.m_p_data) {
-                        lbp.m_p_data[i][j] = castToInt(tempBorder.localLBP(j + 1, i + 1, TL, CW), true);
+                        int startPos = tempBorder.startPosRLBP(j + 1, i + 1);
+                        lbp.m_p_data[i][j] = castToInt(tempBorder.localLBP(j + 1, i + 1, startPos, CW));
                     } else {
                         cerr << "Error: Unable to calculate LBP for edgeType: WhiteBorder, of dimension smaller than 1x1" << endl;
                     }
@@ -614,7 +632,8 @@ Image Image::computeRILBP(int edgeType) {
             for (int i = 0; i < m_height; i++) {
                 for (int j = 0; j < m_width; j++) {
                     if (lbp.m_p_data) {
-                        lbp.m_p_data[i][j] = castToInt(tempBorder.localLBP(j + 1, i + 1, TL, CW), true);
+                        int startPos = tempBorder.startPosRLBP(j + 1, i + 1);
+                        lbp.m_p_data[i][j] = castToInt(tempBorder.localLBP(j + 1, i + 1, startPos, CW));
                     } else {
                         cerr << "Error: Unable to calculate LBP for edgeType: BlackBorder, of dimension smaller than 1x1" << endl;
                     }
@@ -628,7 +647,8 @@ Image Image::computeRILBP(int edgeType) {
             for (int i = 0; i < m_height; i++) {
                 for (int j = 0; j < m_width; j++) {
                     if (lbp.m_p_data) {
-                        lbp.m_p_data[i][j] = castToInt(tempBorder.localLBP(j + 1, i + 1, TL, CW), true);
+                        int startPos = tempBorder.startPosRLBP(j + 1, i + 1);
+                        lbp.m_p_data[i][j] = castToInt(tempBorder.localLBP(j + 1, i + 1, startPos, CW));
                     } else {
                         cerr << "Error: Unable to calculate LBP for edgeType: MirrorBorder, of dimension smaller than 1x1" << endl;
                     }

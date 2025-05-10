@@ -105,6 +105,7 @@ public:
     void fillRange(int startX, int startY, int endX, int endY, uint8_t val);
     void displayImage();
     uint8_t* unwrapLocal(int x, int y, int startPos, int rotation);
+    int startPosRLBP(int x, int y);
     //uint8_t* unwrapLocal(int x, int y, int edgeType);
     uint8_t* localLBP(int x, int y, int startPos, int rotation);
     Image computeLBP(int edgeType, int startPos, int rotation);

@@ -3,12 +3,14 @@
 #include "help_text.h"
 #include <filesystem>
 #include <cctype>
+#include "InteractiveWizard.h"
+#include "TypeDetect.h"
 namespace fs = std::filesystem;
 using std::cout, std::endl;
 string NAME = "LocalBinaryPattern";
-string VERSION = "v0.1.1";
-string RELEASE = "0.1.1-alpha";
-string RELEASE_DATE = "2025-05-04";
+string VERSION = "v0.1.2";
+string RELEASE = "0.1.2-alpha";
+string RELEASE_DATE = "2025-05-10";
 
 
 string toLowercase(const string& input) {
@@ -18,16 +20,10 @@ string toLowercase(const string& input) {
 }
 
 void printHelp() {
+    cout << "Usage: LocalBinaryPattern [OPTIONS]" << endl << endl;
+    cout << "Version: " << RELEASE << endl;
+    cout << "Released: " << RELEASE_DATE << endl;
     cout << HELP_TEXT << endl;
-}
-
-int detectFileType(const string& ext, bool input) {
-    if (ext == ".imat") return IMAT;
-    if ((ext == ".tif" || ext == ".tiff") && !input) return TIFF;
-    if (ext == ".tga") return TGA;
-    if (ext == ".csv" && !input) return CSV;
-    if (ext == ".hist" && !input) return HIST;
-    return UNSUPPORTED_FILETYPE;
 }
 
 int detectEdgeType(const string& edge) {
@@ -36,36 +32,6 @@ int detectEdgeType(const string& edge) {
     if (edge == "whiteedge") return WhiteBorder;
     if (edge == "mirroredge") return MirrorBorder;
     return UNSUPPORTED_EDGETYPE;
-}
-
-int detectHistType(const string& hist) {
-    if (hist == "raw") return RAW;
-    if (hist == "normalized") return NORMAL;
-    return UNSUPPORTED_HISTTYPE;
-}
-
-int detectRotationType(const string& rot) {
-    if (rot == "cw") return CW;
-    if (rot == "ccw") return CCW;
-    return UNSUPPORTED_ROTATION;
-}
-
-int detectStartPosition(const string& pos) {
-    if (pos == "tl") return TL;
-    if (pos == "tc") return TC;
-    if (pos == "tr") return TR;
-    if (pos == "cr") return CR;
-    if (pos == "bl") return BL;
-    if (pos == "bc") return BC;
-    if (pos == "br") return BR;
-    if (pos == "cl") return CL;
-    return UNSUPPORTED_POSITION;
-}
-
-bool matchOutput(const int outputType, const int computeType) {
-    if (computeType == LocalBinaryPattern && outputType != CSV && outputType != HIST) return true;
-    if (computeType == Histogram && (outputType == CSV || outputType == HIST)) return true;
-    return false;
 }
 
 int main(int argc, char* argv[]) {
@@ -98,6 +64,18 @@ int main(int argc, char* argv[]) {
     bool flagErrors = false;
 
     for (int i = 1; i < argc; i++) {
+        if (argv[i][0] == '-' && argv[i][1] == '-') {
+            string arg = argv[i];
+            if (arg == "--help") {
+                printHelp();
+                return 0;
+            }
+            if (arg == "--interactive") {
+                cout << "Starting Interactive Wizard, please wait..." << endl << endl;
+                LaunchInteractiveWizard();
+                return 0;
+            }
+        }
         if (argv[i][0] == '-' && argv[i][1] != '-') {
             switch (argv[i][1]) {
                 case 'v': {

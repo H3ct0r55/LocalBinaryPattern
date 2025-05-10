@@ -8,6 +8,10 @@ add_executable(LocalBinaryPattern main.cpp
         Image.cpp
         Image.h
         help_text.h
+        InteractiveWizard.h
+        InteractiveWizard.cpp
+        TypeDetect.h
+        TypeDetect.cpp
 )
 
 # Ensure maximum stripping of symbols from the final binary

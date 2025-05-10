@@ -5,7 +5,7 @@
 ## Status ![status: alpha](https://img.shields.io/badge/status-alpha-brightgreen)
 
 Fully functional alpha version with documented APIs, a modular architecture, and reliable LBP/histogram pipelines.  
-Latest Release: `v0.1.0-alpha`
+Latest Release: `v0.1.2-alpha`
 
 ## Features
 
@@ -62,6 +62,21 @@ Options:
       Perform Local Binary Pattern (LBP) computation.
 ```
 ```
+  -P <startPos>
+      Specify the starting position for LBP.
+      Accepted values: TL, TC, TR, CR, BR, BC, BL, CL
+```
+```
+  -D <direction>
+      Specify rotation direction for LBP.
+      Accepted values: CW, CCW
+```
+```
+  -I
+      Enable rotation-invariant mode.
+      Cannot be used with -P or -D.
+```
+```
   -H <histType>
       Perform histogram computation.
       Accepted values: Raw, Normalized
@@ -70,6 +85,10 @@ Options:
 ```
   -D
       Display the computed LBP image after processing.
+```
+```
+  --interactive
+      Launch the program in interactive mode.
 ```
 
 ## Examples
@@ -99,6 +118,20 @@ Options:
   LocalBinaryPattern -i demo.tga -H Normalized -o output.csv
   ```
 
+- Compute LBP with custom position and rotation:
+  ```
+  LocalBinaryPattern -i demo.tga -L -P TL -D CW
+  ```
+
+- Compute rotation-invariant LBP:
+  ```
+  LocalBinaryPattern -i demo.tga -L -I
+  ```
+
+- Launch interactive mode:
+  ```
+  LocalBinaryPattern --interactive
+  ```
 
 ## Documentation
 

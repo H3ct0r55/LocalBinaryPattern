@@ -7,10 +7,6 @@
 
 #pragma once
 const char* HELP_TEXT = R"(
-Usage: LocalBinaryPattern [OPTIONS]
-
-Version: 0.1.alpha
-Released: 2025-05-03
 
 Options:
   -h, --help
@@ -31,12 +27,27 @@ Options:
   -L
       Perform Local Binary Pattern (LBP) computation.
 
+  -P <startPos>
+      Specify the starting position for LBP.
+      Accepted values: TL, TC, TR, CR, BR, BC, BL, CL
+
+  -D <direction>
+      Specify rotation direction for LBP.
+      Accepted values: CW, CCW
+
+  -I
+      Enable rotation-invariant mode.
+      Cannot be used with -P or -D.
+
   -H <histType>
       Perform histogram computation.
       Accepted values: Raw, Normalized
 
   -D
       Display the computed LBP image after processing.
+
+  --interactive
+      Launch the program in interactive mode.
 
 Examples:
   LocalBinaryPattern -h
@@ -53,6 +64,15 @@ Examples:
 
   LocalBinaryPattern -i demo.tga -H Normalized -o output.csv
       Compute the normalized LBP histogram and save to "output.n.csv".
+
+  LocalBinaryPattern -i demo.tga -L -P TL -D CW
+      Compute the LBP of "demo.tga" using top-left start and clockwise rotation.
+
+  LocalBinaryPattern -i demo.tga -L -I
+      Compute the rotation-invariant LBP of "demo.tga".
+
+  LocalBinaryPattern --interactive
+      Launch the application in interactive mode.
 )";
 
 #endif //HELP_TEXT_H

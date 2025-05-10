@@ -6,9 +6,9 @@
 namespace fs = std::filesystem;
 using std::cout, std::endl;
 string NAME = "LocalBinaryPattern";
-string VERSION = "v0.1.0";
-string RELEASE = "0.1.0-alpha";
-string RELEASE_DATE = "2025-05-03";
+string VERSION = "v0.1.1";
+string RELEASE = "0.1.1-alpha";
+string RELEASE_DATE = "2025-05-04";
 
 
 string toLowercase(const string& input) {
@@ -46,7 +46,7 @@ int detectHistType(const string& hist) {
 
 int detectRotationType(const string& rot) {
     if (rot == "cw") return CW;
-    if (rot == "ccw./L") return CCW;
+    if (rot == "ccw") return CCW;
     return UNSUPPORTED_ROTATION;
 }
 
@@ -92,6 +92,8 @@ int main(int argc, char* argv[]) {
 
     bool startPositionSpecified = false;
     int startPosition = TL;
+
+    bool rotationInvariant = false;
 
     bool flagErrors = false;
 
@@ -257,6 +259,10 @@ int main(int argc, char* argv[]) {
                     }
                     break;
                 }
+                case 'I': {
+                    rotationInvariant = true;
+                    break;
+                }
                 default: {
                     cout << "Error: unknown option \"" << argv[i] << "\"" << endl;
                     flagErrors = true;
@@ -301,6 +307,11 @@ int main(int argc, char* argv[]) {
         flagErrors = true;
     }
 
+    if ((rotationSpecified || startPositionSpecified) && rotationInvariant) {
+        cout << "Error: cannot run in rotation invariant mode with start position and direction" << endl;
+        flagErrors = true;
+    }
+
     if (flagErrors) {
         cout << "Run with -h flag for the help manual" << endl;
         return 0;
@@ -341,8 +352,12 @@ int main(int argc, char* argv[]) {
                 return 0;
             }
         }
-
-        Image lbp = image.computeLBP(edgeType, startPosition, rotationType);
+        Image lbp;
+        if (!rotationInvariant) {
+            lbp = image.computeLBP(edgeType, startPosition, rotationType);
+        } else {
+            lbp = image.computeRILBP(edgeType);
+        }
         bool writeSuccess = false;
         switch (outputType) {
             case IMAT: {
@@ -387,7 +402,12 @@ int main(int argc, char* argv[]) {
                 return 0;
             }
         }
-        Image lbp = image.computeLBP(edgeType, startPosition, rotationType);
+        Image lbp;
+        if (!rotationInvariant) {
+            lbp = image.computeLBP(edgeType, startPosition, rotationType);
+        } else {
+            lbp = image.computeRILBP(edgeType);
+        }
         bool writeSuccess = false;
         uint32_t* rHist;
         double* nHist;

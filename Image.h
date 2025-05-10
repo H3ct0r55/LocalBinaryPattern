@@ -108,6 +108,7 @@ public:
     //uint8_t* unwrapLocal(int x, int y, int edgeType);
     uint8_t* localLBP(int x, int y, int startPos, int rotation);
     Image computeLBP(int edgeType, int startPos, int rotation);
+    Image computeRILBP(int edgeType);
     uint32_t* computeRawHist();
     double* computeNormHist();
 
@@ -117,6 +118,7 @@ public:
 };
 
 uint8_t castToInt(const uint8_t* input);
+uint8_t castToInt(const uint8_t *input, bool rotationInvariant);
 bool writeRHIST(uint32_t* histogram, const path& filename);
 bool writeRHISTCSV(uint32_t* histogram, const path& filename);
 bool writeNHIST(double* histogram, const path& filename);

@@ -321,6 +321,8 @@ void LaunchInteractiveWizard() {
                 cout << "Uncaught Runtime Error: Invalid histType" << endl;
             }
         }
+        delete[] rHist;
+        delete[] nHist;
         if (writeSuccess) {
             cout << "File successfully written as " << output << endl;
         } else {

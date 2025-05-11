@@ -437,6 +437,8 @@ int main(int argc, char* argv[]) {
                 cout << "Uncaught Runtime Error: Invalid histType" << endl;
             }
         }
+        delete[] rHist;
+        delete[] nHist;
         if (writeSuccess) {
             cout << "File successfully written as " << outputFile << endl;
         } else {

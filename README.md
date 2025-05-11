@@ -135,7 +135,9 @@ Options:
 
 ## Documentation
 
-Coming Soon
+[DOCS](https://github.com/H3ct0r55/LocalBinaryPattern/blob/main/DOCS/DOCS.pdf)
+[French DOCS](https://github.com/H3ct0r55/LocalBinaryPattern/blob/main/DOCS/DOCS.FR.pdf)
+
 
 ## License
 

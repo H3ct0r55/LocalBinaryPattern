@@ -102,7 +102,7 @@ int main(int argc, char* argv[]) {
                         }
                         input = true;
                         inputFile = path(argv[i + 1]);
-                        ++i; // skip the value we just consumed
+                        ++i;
                         break;
                     }
                     cout << "Error: cannot specify more than one input file" << endl;
@@ -118,7 +118,7 @@ int main(int argc, char* argv[]) {
                         }
                         output = true;
                         outputFile = path(argv[i + 1]);
-                        ++i; // skip the value we just consumed
+                        ++i;
                         break;
                     }
                     cout << "Error: cannot specify more than one output file" << endl;
@@ -163,7 +163,7 @@ int main(int argc, char* argv[]) {
                             flagErrors = true;
                             break;
                         }
-                        ++i; // skip the value we just consumed
+                        ++i;
                         break;
                     }
                     cout << "Error: cannot specify more than one instruction" << endl;
@@ -191,7 +191,7 @@ int main(int argc, char* argv[]) {
                             flagErrors = true;
                             break;
                         }
-                        ++i; // skip the value we just consumed
+                        ++i;
                         break;
                     }
                     cout << "Error: cannot specify more than one edge type" << endl;
@@ -216,7 +216,7 @@ int main(int argc, char* argv[]) {
                             flagErrors = true;
                             break;
                         }
-                        ++i; // skip the value we just consumed
+                        ++i;
                     } else {
                         cout << "Error: cannot specify more than one start position" << endl;
                         flagErrors = true;
@@ -237,7 +237,7 @@ int main(int argc, char* argv[]) {
                             flagErrors = true;
                             break;
                         }
-                        ++i; // skip the value we just consumed
+                        ++i;
                     } else {
                         cout << "Error: cannot specify more than one rotation type" << endl;
                         flagErrors = true;

@@ -229,7 +229,6 @@ bool Image::writeIMAT(const path& filename) {
         for (int i = 0; i < m_height; i++) {
             file.write(reinterpret_cast<const char *>(m_p_data[i]), static_cast<streamsize>(m_width * sizeof(uint8_t)));
         }
-        // Check for write failure after writing all rows
         if (file.fail()) {
             cerr << "Error: Write failure for file: " << filename.filename() << endl;
             file.close();
@@ -272,7 +271,6 @@ void Image::readIMAT(const path& filename) {
     }
     if (file.fail()) {
         cerr << "Error: Unexpected end of file or read failure for file: " << filename.filename() << endl;
-        // Clean up partially allocated image data
         for (int i = 0; i < m_height; ++i) {
             delete[] m_p_data[i];
         }
@@ -496,7 +494,6 @@ uint8_t castToInt(const uint8_t *input, bool rotationInvariant) {
         cerr << "Error: castToInt (rotationInvariant) called with nullptr input." << endl;
         return 0;
     }
-    // Validate bits once; reuse for all rotations.
     for (int i = 0; i < 8; ++i) {
         if (input[i] != 0 && input[i] != 1) {
             cerr << "Error: castToInt expects bits 0 or 1, found " << static_cast<int>(input[i]) << " at position " << i << "." << endl;
@@ -809,7 +806,7 @@ Image Image::computeRILBP(int edgeType) {
                 for (int j = 0; j < m_width - 2; j++) {
                     if (lbp.m_p_data) {
                         int startPos = this->startPosRLBP(j + 1, i + 1);
-                        if (startPos < 0) { // error already logged inside startPosRLBP
+                        if (startPos < 0) {
                             lbp.m_p_data[i][j] = 0;
                         } else {
                             auto *bits = this->localLBP(j + 1, i + 1, startPos, CW);
@@ -834,7 +831,7 @@ Image Image::computeRILBP(int edgeType) {
                 for (int j = 0; j < m_width; j++) {
                     if (lbp.m_p_data) {
                         int startPos = tempBorder.startPosRLBP(j + 1, i + 1);
-                        if (startPos < 0) { // error already logged inside startPosRLBP
+                        if (startPos < 0) {
                             lbp.m_p_data[i][j] = 0;
                         } else {
                             auto *bits = tempBorder.localLBP(j + 1, i + 1, startPos, CW);
@@ -859,7 +856,7 @@ Image Image::computeRILBP(int edgeType) {
                 for (int j = 0; j < m_width; j++) {
                     if (lbp.m_p_data) {
                         int startPos = tempBorder.startPosRLBP(j + 1, i + 1);
-                        if (startPos < 0) { // error already logged inside startPosRLBP
+                        if (startPos < 0) {
                             lbp.m_p_data[i][j] = 0;
                         } else {
                             auto *bits = tempBorder.localLBP(j + 1, i + 1, startPos, CW);
@@ -884,7 +881,7 @@ Image Image::computeRILBP(int edgeType) {
                 for (int j = 0; j < m_width; j++) {
                     if (lbp.m_p_data) {
                         int startPos = tempBorder.startPosRLBP(j + 1, i + 1);
-                        if (startPos < 0) { // error already logged inside startPosRLBP
+                        if (startPos < 0) {
                             lbp.m_p_data[i][j] = 0;
                         } else {
                             auto *bits = tempBorder.localLBP(j + 1, i + 1, startPos, CW);
@@ -912,7 +909,6 @@ bool Image::writeTGA(const path& filename, int colorType) {
         return false;
     }
 
-    // Validate colorType early
     if (colorType != 0 && colorType != 1) {
         cerr << "Error: Invalid colorType: " << colorType << endl;
         return false;
@@ -935,14 +931,13 @@ bool Image::writeTGA(const path& filename, int colorType) {
             header[2] = 3;
             header[16] = 8;
             break;
-        } // Image type: uncompressed grayscale
+        }
         case 1: {
             header[2] = 2;
             header[16] = 24;
             break;
         }
         default: {
-            // Should never happen due to early check, but keep switch exhaustive
             break;
         }
     }
@@ -950,7 +945,7 @@ bool Image::writeTGA(const path& filename, int colorType) {
     header[13] = static_cast<uint8_t>(m_width / 256);
     header[14] = static_cast<uint8_t>(m_height % 256);
     header[15] = static_cast<uint8_t>(m_height / 256);
-    header[17] = 0x20; // No alpha, no origin flip
+    header[17] = 0x20;
 
     file.write(reinterpret_cast<const char *>(header), sizeof(header));
 
@@ -973,11 +968,9 @@ bool Image::writeTGA(const path& filename, int colorType) {
             break;
         }
         default: {
-            // Should never happen due to early check, but keep switch exhaustive
             break;
         }
     }
-    // Check for write failures
     if (file.fail()) {
         cerr << "Error: Write failure for file: " << filename.filename() << endl;
         file.close();
@@ -1003,7 +996,6 @@ void Image::readTGA(const path& filename) {
     int height = header[14] + (header[15] << 8);
     uint8_t bitDepth = header[16];
 
-    // After obtaining width and height, check for valid dimensions
     if (width <= 0 || height <= 0) {
         cerr << "Error: Invalid dimensions (" << width << "x" << height << ") in TGA header." << endl;
         file.close();
@@ -1042,7 +1034,6 @@ void Image::readTGA(const path& filename) {
     for (int i = 0; i < m_height; i++) {
         m_p_data[i] = new uint8_t[m_width];
     }
-    // After allocating m_p_data, check for allocation failure
     if (m_p_data == nullptr) {
         cerr << "Error: Memory allocation failed for TGA image data." << endl;
         file.close();
@@ -1068,10 +1059,8 @@ void Image::readTGA(const path& filename) {
             break;
         }
     }
-    // After reading pixels, check for read failures
     if (file.fail()) {
         cerr << "Error: Unexpected end of file or read failure for file: " << filename.filename() << endl;
-        // Clean up partially read data
         for (int i = 0; i < m_height; ++i) {
             delete[] m_p_data[i];
         }
@@ -1238,8 +1227,6 @@ void Image::displayImage() {
     if (int ret = system(command.c_str()); ret != 0) {
         cerr << "Error: Failed to open image viewer (command returned " << ret << ")." << endl;
     }
-    // std::filesystem::remove(filename);
-    // std::filesystem::remove_all("cache");
 }
 
 void displayImage(const path& filename) {
@@ -1261,13 +1248,13 @@ void displayImage(const path& filename) {
 }
 
 void displayTestImage() {
-    Image image(1920, 1080, 0); // black background
+    Image image(1920, 1080, 0);
 
     random_device rd;
     mt19937 gen(rd());
     uniform_int_distribution<> distX(0, 1920 - 1);
     uniform_int_distribution<> distY(0, 1080 - 1);
-    uniform_int_distribution<> distSize(5, 50); // square sizes
+    uniform_int_distribution<> distSize(5, 50);
 
     for (int i = 0; i < 100; ++i) {
         int x = distX(gen);

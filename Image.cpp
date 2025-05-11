@@ -365,6 +365,7 @@ int Image::startPosRLBP(int x, int y) {
             largestPos = i;
         }
     }
+    delete[] temp;
     return largestPos;
 }
 

@@ -95,8 +95,14 @@ int main(int argc, char* argv[]) {
                 }
                 case 'i': {
                     if (!input) {
+                        if (i + 1 >= argc || argv[i + 1][0] == '-') {
+                            cout << "Error: no input file specified after -i" << endl;
+                            flagErrors = true;
+                            break;
+                        }
                         input = true;
-                        inputFile = path(argv[i+1]);
+                        inputFile = path(argv[i + 1]);
+                        ++i; // skip the value we just consumed
                         break;
                     }
                     cout << "Error: cannot specify more than one input file" << endl;
@@ -105,8 +111,14 @@ int main(int argc, char* argv[]) {
                 }
                 case 'o': {
                     if (!output) {
+                        if (i + 1 >= argc || argv[i + 1][0] == '-') {
+                            cout << "Error: no output file specified after -o" << endl;
+                            flagErrors = true;
+                            break;
+                        }
                         output = true;
-                        outputFile = path(argv[i+1]);
+                        outputFile = path(argv[i + 1]);
+                        ++i; // skip the value we just consumed
                         break;
                     }
                     cout << "Error: cannot specify more than one output file" << endl;
@@ -125,31 +137,23 @@ int main(int argc, char* argv[]) {
                 }
                 case 'H': {
                     if (!computeSpecified) {
+                        if (i + 1 >= argc || argv[i + 1][0] == '-') {
+                            cout << "Error: no histogram type specified after -H" << endl;
+                            flagErrors = true;
+                            break;
+                        }
                         computeSpecified = true;
                         computeType = Histogram;
+
                         if (!histSpecified) {
-                            if (!argv[i+1] || argv[i+1][0] == '-') {
-                                cout << "Error: no histogram type specified" << endl;
-                                flagErrors = true;
-                                break;
-                            }
                             histSpecified = true;
-                            histType = detectHistType(toLowercase(argv[i+1]));
+                            histType = detectHistType(toLowercase(argv[i + 1]));
                             if (histType == UNSUPPORTED_HISTTYPE) {
-                                cout << "Error: unknown histogram type \"" << argv[i+1] << "\". ";
-                                switch (argv[i+1][0]) {
-                                    case 'n': case 'N': {
-                                        cout << "Did you mean \"Normalized\" ?" << endl;
-                                        break;
-                                    }
-                                    case 'r': case 'R': {
-                                        cout << "Did you mean \"Raw\" ?" << endl;
-                                        break;
-                                    }
-                                    default: {
-                                        cout << endl;
-                                        break;
-                                    }
+                                cout << "Error: unknown histogram type \"" << argv[i + 1] << "\". ";
+                                switch (argv[i + 1][0]) {
+                                    case 'n': case 'N': cout << "Did you mean \"Normalized\" ?" << endl; break;
+                                    case 'r': case 'R': cout << "Did you mean \"Raw\" ?" << endl; break;
+                                    default: cout << endl; break;
                                 }
                                 flagErrors = true;
                                 break;
@@ -159,6 +163,7 @@ int main(int argc, char* argv[]) {
                             flagErrors = true;
                             break;
                         }
+                        ++i; // skip the value we just consumed
                         break;
                     }
                     cout << "Error: cannot specify more than one instruction" << endl;
@@ -167,40 +172,26 @@ int main(int argc, char* argv[]) {
                 }
                 case 'e': {
                     if (!edgeSpecified) {
-                        if (!argv[i+1] || argv[i+1][0] == '-') {
-                            cout << "Error: no edge type specified" << endl;
+                        if (i + 1 >= argc || argv[i + 1][0] == '-') {
+                            cout << "Error: no edge type specified after -e" << endl;
                             flagErrors = true;
                             break;
                         }
                         edgeSpecified = true;
-                        edgeType = detectEdgeType(toLowercase(argv[i+1]));
+                        edgeType = detectEdgeType(toLowercase(argv[i + 1]));
                         if (edgeType == UNSUPPORTED_EDGETYPE) {
-                            cout << "Error: unknown edge type \"" << argv[i+1] << "\". ";
-                            switch (argv[i+1][0]) {
-                                case 'c': case 'C': {
-                                    cout << "Did you mean \"CropEdge\" ?" << endl;
-                                    break;
-                                }
-                                case 'b': case 'B': {
-                                    cout << "Did you mean \"BlackEdge\" ?" << endl;
-                                    break;
-                                }
-                                case 'w': case 'W': {
-                                    cout << "Did you mean \"WhiteEdge\" ?" << endl;
-                                    break;
-                                }
-                                case 'm': case 'M': {
-                                    cout << "Did you mean \"MirrorEdge\" ?" << endl;
-                                    break;
-                                }
-                                default: {
-                                    cout << endl;
-                                    break;
-                                }
+                            cout << "Error: unknown edge type \"" << argv[i + 1] << "\". ";
+                            switch (argv[i + 1][0]) {
+                                case 'c': case 'C': cout << "Did you mean \"CropEdge\" ?" << endl; break;
+                                case 'b': case 'B': cout << "Did you mean \"BlackEdge\" ?" << endl; break;
+                                case 'w': case 'W': cout << "Did you mean \"WhiteEdge\" ?" << endl; break;
+                                case 'm': case 'M': cout << "Did you mean \"MirrorEdge\" ?" << endl; break;
+                                default: cout << endl; break;
                             }
                             flagErrors = true;
                             break;
                         }
+                        ++i; // skip the value we just consumed
                         break;
                     }
                     cout << "Error: cannot specify more than one edge type" << endl;
@@ -213,27 +204,43 @@ int main(int argc, char* argv[]) {
                 }
                 case 'P': {
                     if (!startPositionSpecified) {
-                        startPositionSpecified = true;
-                        startPosition = detectStartPosition(toLowercase(argv[i+1]));
-                        if (startPosition == UNSUPPORTED_POSITION) {
-                            cout << "Error: unknown start position \"" << argv[i+1] << "\". ";
+                        if (i + 1 >= argc || argv[i + 1][0] == '-') {
+                            cout << "Error: no start position specified after -P" << endl;
                             flagErrors = true;
+                            break;
                         }
+                        startPositionSpecified = true;
+                        startPosition = detectStartPosition(toLowercase(argv[i + 1]));
+                        if (startPosition == UNSUPPORTED_POSITION) {
+                            cout << "Error: unknown start position \"" << argv[i + 1] << "\"." << endl;
+                            flagErrors = true;
+                            break;
+                        }
+                        ++i; // skip the value we just consumed
                     } else {
                         cout << "Error: cannot specify more than one start position" << endl;
+                        flagErrors = true;
                     }
                     break;
                 }
                 case 'R': {
                     if (!rotationSpecified) {
-                        rotationSpecified = true;
-                        rotationType = detectRotationType(toLowercase(argv[i+1]));
-                        if (rotationType == UNSUPPORTED_ROTATION) {
-                            cout << "Error: unknown rotation type \"" << argv[i+1] << "\". ";
+                        if (i + 1 >= argc || argv[i + 1][0] == '-') {
+                            cout << "Error: no rotation type specified after -R" << endl;
                             flagErrors = true;
+                            break;
                         }
+                        rotationSpecified = true;
+                        rotationType = detectRotationType(toLowercase(argv[i + 1]));
+                        if (rotationType == UNSUPPORTED_ROTATION) {
+                            cout << "Error: unknown rotation type \"" << argv[i + 1] << "\"." << endl;
+                            flagErrors = true;
+                            break;
+                        }
+                        ++i; // skip the value we just consumed
                     } else {
                         cout << "Error: cannot specify more than one rotation type" << endl;
+                        flagErrors = true;
                     }
                     break;
                 }

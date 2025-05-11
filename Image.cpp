@@ -19,6 +19,7 @@ Image::Image(int width, int height) : m_width(width), m_height(height), m_p_data
         m_width = 0;
         m_height = 0;
         m_p_data = nullptr;
+        cerr << "Error: Invalid image dimensions (" << width << "x" << height << "), initializing empty image." << endl;
     }
 }
 
@@ -28,11 +29,17 @@ Image::Image(int width, int height, int value) : m_width(width), m_height(height
         for (int i = 0; i < m_height; i++) {
             m_p_data[i] = new uint8_t[m_width];
         }
-        this->valFill(value);
+        if (value >= 0 && value <= 255) {
+            this->valFill(value);
+        } else {
+            cerr << "Error: Invalid fill value (" << value << "), expected 0‑255. Filling with zeros." << endl;
+            this->valFill(0);
+        }
     } else {
         m_width = 0;
         m_height = 0;
         m_p_data = nullptr;
+        cerr << "Error: Invalid image dimensions (" << width << "x" << height << "), initializing empty image." << endl;
     }
 }
 
@@ -51,6 +58,7 @@ Image::Image(int width, int height, bool randFill) : m_width(width), m_height(he
         m_width = 0;
         m_height = 0;
         m_p_data = nullptr;
+        cerr << "Error: Invalid image dimensions (" << width << "x" << height << "), initializing empty image." << endl;
     }
 }
 
@@ -69,6 +77,7 @@ Image::Image(const Image &image) : m_width(image.m_width), m_height(image.m_heig
         m_width = 0;
         m_height = 0;
         m_p_data = nullptr;
+        cerr << "Error: Invalid source image for copy constructor, initializing empty image." << endl;
     }
 }
 
@@ -76,6 +85,10 @@ Image::Image(const Image &image, int borderWidth, int borderValue) : m_width(ima
                                                                      m_height(image.m_height + 2 * borderWidth),
                                                                      m_p_data(nullptr) {
     if (m_width > 0 && m_height > 0 && image.m_p_data != nullptr) {
+        if (borderValue < 0 || borderValue > 255) {
+            cerr << "Error: Invalid border value (" << borderValue << "), expected 0‑255. Using 0 instead." << endl;
+            borderValue = 0;
+        }
         m_p_data = new uint8_t *[m_height];
         for (int i = 0; i < m_height; i++) {
             m_p_data[i] = new uint8_t[m_width];
@@ -98,6 +111,7 @@ Image::Image(const Image &image, int borderWidth, int borderValue) : m_width(ima
         m_width = 0;
         m_height = 0;
         m_p_data = nullptr;
+        cerr << "Error: Invalid source image or dimensions for border copy constructor, initializing empty image." << endl;
     }
 }
 
@@ -134,6 +148,7 @@ Image::Image(const Image &image, int mirrorBorderWidth) : m_width(image.m_width 
         m_width = 0;
         m_height = 0;
         m_p_data = nullptr;
+        cerr << "Error: Invalid source image or dimensions for mirror‑border copy constructor, initializing empty image." << endl;
     }
 }
 
@@ -156,6 +171,8 @@ void Image::randFill() const {
                 m_p_data[i][j] = static_cast<uint8_t>(dist(gen));
             }
         }
+    } else {
+        cerr << "Error: Cannot perform randFill on empty or uninitialized image." << endl;
     }
 }
 
@@ -167,15 +184,28 @@ void Image::valFill(int value) const {
             }
         }
     }
+    else {
+        if (value < 0 || value > 255) {
+            cerr << "Error: Invalid fill value (" << value << "), expected 0-255." << endl;
+        } else {
+            cerr << "Error: Cannot perform valFill on empty or uninitialized image." << endl;
+        }
+    }
 }
 
 void Image::fillRange(int startX, int startY, int endX, int endY, uint8_t val) {
     if (m_width > 0 && m_height > 0 && m_p_data != nullptr) {
-        for (int i = startY; i < endY; i++) {
-            for (int j = startX; j < endX; j++) {
+        if (startX < 0 || startY < 0 || endX > m_width || endY > m_height || startX >= endX || startY >= endY) {
+            cerr << "Error: Invalid fill range (" << startX << "," << startY << ") to (" << endX << "," << endY << ")." << endl;
+            return;
+        }
+        for (int i = startY; i < endY; ++i) {
+            for (int j = startX; j < endX; ++j) {
                 m_p_data[i][j] = val;
             }
         }
+    } else {
+        cerr << "Error: Cannot perform fillRange on empty or uninitialized image." << endl;
     }
 }
 
@@ -199,9 +229,16 @@ bool Image::writeIMAT(const path& filename) {
         for (int i = 0; i < m_height; i++) {
             file.write(reinterpret_cast<const char *>(m_p_data[i]), static_cast<streamsize>(m_width * sizeof(uint8_t)));
         }
+        // Check for write failure after writing all rows
+        if (file.fail()) {
+            cerr << "Error: Write failure for file: " << filename.filename() << endl;
+            file.close();
+            return false;
+        }
         file.close();
         return true;
     }
+    cerr << "Error: Empty or invalid image, no file written." << endl;
     return false;
 }
 
@@ -222,11 +259,27 @@ void Image::readIMAT(const path& filename) {
 
     file.read(reinterpret_cast<char *>(&m_width), sizeof(int));
     file.read(reinterpret_cast<char *>(&m_height), sizeof(int));
+    if (m_width <= 0 || m_height <= 0) {
+        cerr << "Error: Invalid dimensions read from file: " << filename.filename() << endl;
+        file.close();
+        return;
+    }
 
     m_p_data = new uint8_t *[m_height];
     for (int i = 0; i < m_height; i++) {
         m_p_data[i] = new uint8_t[m_width];
         file.read(reinterpret_cast<char *>(m_p_data[i]), static_cast<streamsize>(m_width * sizeof(uint8_t)));
+    }
+    if (file.fail()) {
+        cerr << "Error: Unexpected end of file or read failure for file: " << filename.filename() << endl;
+        // Clean up partially allocated image data
+        for (int i = 0; i < m_height; ++i) {
+            delete[] m_p_data[i];
+        }
+        delete[] m_p_data;
+        m_p_data = nullptr;
+        file.close();
+        return;
     }
 
     file.close();
@@ -234,6 +287,10 @@ void Image::readIMAT(const path& filename) {
 
 
 ostream &operator<<(ostream &os, const Image &image) {
+    if (image.m_p_data == nullptr || image.m_width <= 0 || image.m_height <= 0) {
+        cerr << "Error: Attempt to stream empty or uninitialized image." << endl;
+        return os;
+    }
     for (int i = 0; i < image.m_height; i++) {
         for (int j = 0; j < image.m_width; j++) {
             os << static_cast<int>(image.m_p_data[i][j]) << "\t";
@@ -246,15 +303,14 @@ ostream &operator<<(ostream &os, const Image &image) {
 
 
 uint8_t *Image::unwrapLocal(int x, int y, int startPos, int rotation) {
+    if (m_p_data == nullptr || m_width <= 0 || m_height <= 0) {
+        cerr << "Error: unwrapLocal called on empty or uninitialized image." << endl;
+        return nullptr;
+    }
     if (x > 0 && y > 0 && x < m_width - 1 && y < m_height - 1) {
         auto *temp = new uint8_t[8];
         for (int i = 0; i < 3; i++) {
-            if (m_p_data) {
-                temp[i] = m_p_data[y - 1][x + i - 1];
-            } else {
-                cerr << "ERROR: nullptr called into unwarpLocal, exiting..." << endl;cerr << "ERROR: nullptr called into unwarpLocal, exiting..." << endl;
-                exit(12);
-            }
+            temp[i] = m_p_data[y - 1][x + i - 1];
         }
         temp[3] = m_p_data[y][x + 1];
         for (int i = 0; i < 3; i++) {
@@ -279,12 +335,24 @@ uint8_t *Image::unwrapLocal(int x, int y, int startPos, int rotation) {
         }
         return temp;
     }
-    cerr << "ERROR: Unable to unwrapLocal for edge pixels, exiting...";
-    exit(10);
+    cerr << "Error: unwrapLocal cannot operate on edge pixel (" << x << "," << y << ")." << endl;
+    return nullptr;
 }
 
 int Image::startPosRLBP(int x, int y) {
+    if (m_p_data == nullptr) {
+        cerr << "Error: startPosRLBP called on empty or uninitialized image." << endl;
+        return -1;
+    }
+    if (x <= 0 || y <= 0 || x >= m_width - 1 || y >= m_height - 1) {
+        cerr << "Error: startPosRLBP called on edge pixel (" << x << "," << y << ")." << endl;
+        return -1;
+    }
     auto* temp = this->unwrapLocal(x, y, TL, CW);
+    if (temp == nullptr) {
+        cerr << "Error: startPosRLBP failed to retrieve local window at (" << x << "," << y << ")." << endl;
+        return -1;
+    }
     int largest = 0;
     int largestVal = 0;
     int largestPos = 0;
@@ -301,7 +369,19 @@ int Image::startPosRLBP(int x, int y) {
 }
 
 uint8_t *Image::localLBP(int x, int y, int startPos, int rotation) {
+    if (m_p_data == nullptr) {
+        cerr << "Error: localLBP called on empty or uninitialized image." << endl;
+        return nullptr;
+    }
+    if (x <= 0 || y <= 0 || x >= m_width - 1 || y >= m_height - 1) {
+        cerr << "Error: localLBP called on edge pixel (" << x << "," << y << ")." << endl;
+        return nullptr;
+    }
     uint8_t *temp = this->unwrapLocal(x, y, startPos, rotation);
+    if (temp == nullptr) {
+        cerr << "Error: localLBP failed to retrieve local window at (" << x << "," << y << ")." << endl;
+        return nullptr;
+    }
     auto LBP = new uint8_t[8];
     for (int i = 0; i < 8; i++) {
         if (temp[i] < m_p_data[y][x]) {
@@ -315,11 +395,14 @@ uint8_t *Image::localLBP(int x, int y, int startPos, int rotation) {
 }
 
 uint32_t *Image::computeRawHist() {
+    if (m_p_data == nullptr || m_width <= 0 || m_height <= 0) {
+        cerr << "Error: computeRawHist called on empty or uninitialized image." << endl;
+        return nullptr;
+    }
     auto *temp = new uint32_t[256];
     for (int i = 0; i < 256; i++) {
         temp[i] = 0;
     }
-
     for (int i = 0; i < m_height; i++) {
         for (int j = 0; j < m_width; j++) {
             temp[m_p_data[i][j]] += 1;
@@ -330,9 +413,18 @@ uint32_t *Image::computeRawHist() {
 
 double *Image::computeNormHist() {
     uint32_t *temp = this->computeRawHist();
+    if (temp == nullptr) {
+        cerr << "Error: computeNormHist failed because raw histogram computation returned nullptr." << endl;
+        return nullptr;
+    }
     int total = 0;
     for (int i = 0; i < 256; i++) {
         total += static_cast<int>(temp[i]);
+    }
+    if (total == 0) {
+        cerr << "Error: computeNormHist found total pixel count zero." << endl;
+        delete[] temp;
+        return nullptr;
     }
     auto *hist = new double[256];
     for (int i = 0; i < 256; i++) {
@@ -344,10 +436,23 @@ double *Image::computeNormHist() {
 
 Image &Image::operator=(const Image &input) {
     if (this != &input) {
+        if (input.m_p_data == nullptr || input.m_width <= 0 || input.m_height <= 0) {
+            cerr << "Error: Assignment from empty or uninitialized image." << endl;
+            if (m_p_data != nullptr) {
+                for (int i = 0; i < m_height; ++i) {
+                    delete[] m_p_data[i];
+                }
+                delete[] m_p_data;
+            }
+            m_p_data = nullptr;
+            m_width = 0;
+            m_height = 0;
+            return *this;
+        }
         m_width = input.m_width;
         m_height = input.m_height;
         if (m_p_data != nullptr) {
-            for (int i = 0; i < input.m_height; i++) {
+            for (int i = 0; i < m_height; i++) {
                 delete[] m_p_data[i];
             }
             delete[] m_p_data;
@@ -367,26 +472,45 @@ Image &Image::operator=(const Image &input) {
 
 
 uint8_t castToInt(const uint8_t *input) {
+    if (input == nullptr) {
+        cerr << "Error: castToInt called with nullptr input." << endl;
+        return 0;
+    }
     uint8_t result = 0;
     for (int i = 0; i < 8; i++) {
-        if (input[7 - i] == 1) {
-            result += static_cast<uint8_t>(1 << i);
+        uint8_t bit = input[7 - i];
+        if (bit != 0 && bit != 1) {
+            cerr << "Error: castToInt expects bits 0 or 1, found " << static_cast<int>(bit) << " at position " << (7 - i) << "." << endl;
+            return 0;
+        }
+        if (bit == 1) {
+            result |= static_cast<uint8_t>(1 << i);
         }
     }
     return result;
 }
 
 uint8_t castToInt(const uint8_t *input, bool rotationInvariant) {
+    if (input == nullptr) {
+        cerr << "Error: castToInt (rotationInvariant) called with nullptr input." << endl;
+        return 0;
+    }
+    // Validate bits once; reuse for all rotations.
+    for (int i = 0; i < 8; ++i) {
+        if (input[i] != 0 && input[i] != 1) {
+            cerr << "Error: castToInt expects bits 0 or 1, found " << static_cast<int>(input[i]) << " at position " << i << "." << endl;
+            return 0;
+        }
+    }
     if (!rotationInvariant) {
         return castToInt(input);
     }
-
     uint8_t minValue = 255;
     for (int r = 0; r < 8; ++r) {
         uint8_t value = 0;
         for (int i = 0; i < 8; ++i) {
             if (input[(r + 7 - i) % 8] == 1) {
-                value += static_cast<uint8_t>(1 << i);
+                value |= static_cast<uint8_t>(1 << i);
             }
         }
         if (value < minValue) {
@@ -397,121 +521,193 @@ uint8_t castToInt(const uint8_t *input, bool rotationInvariant) {
 }
 
 bool writeRHIST(uint32_t *histogram, const path& filename) {
+    if (histogram == nullptr) {
+        cerr << "Error: writeRHIST called with nullptr histogram." << endl;
+        return false;
+    }
+
     path dir = filename.parent_path();
     if (!dir.empty() && !exists(dir)) {
         create_directories(dir);
     }
-    fstream file;
-    file.open(filename, ios::out | ios::binary);
+
+    fstream file(filename, ios::out | ios::binary);
     if (!file.is_open()) {
         cerr << "Error: Unable to open file: " << filename.filename() << ", no file written" << endl;
+        return false;
+    }
+
+    file.write(reinterpret_cast<char *>(histogram), 256 * sizeof(uint32_t));
+
+    if (file.fail()) {
+        cerr << "Error: Write failure for file: " << filename.filename() << endl;
         file.close();
         return false;
     }
-    file.write(reinterpret_cast<char *>(histogram), 256 * sizeof(uint32_t));
+
     file.close();
     return true;
 }
 
 bool writeRHISTCSV(uint32_t *histogram, const path& filename) {
+    if (histogram == nullptr) {
+        cerr << "Error: writeRHISTCSV called with nullptr histogram." << endl;
+        return false;
+    }
+
     path dir = filename.parent_path();
     if (!dir.empty() && !exists(dir)) {
         create_directories(dir);
     }
-    fstream file;
-    file.open(filename, ios::out | ios::binary);
+
+    fstream file(filename, ios::out | ios::binary);
     if (!file.is_open()) {
         cerr << "Error: Unable to open file: " << filename.filename() << ", no file written" << endl;
-        file.close();
         return false;
     }
+
     const char* TopLine = "Value, Occurence\n";
     file.write(TopLine, static_cast<streamsize>(strlen(TopLine)));
     for (int i = 0; i < 256; i++) {
         file << i << ", " << static_cast<int>(histogram[i]) << "\n";
     }
+
+    if (file.fail()) {
+        cerr << "Error: Write failure for file: " << filename.filename() << endl;
+        file.close();
+        return false;
+    }
+
     file.close();
     return true;
 }
 
 bool writeNHISTCSV(double *histogram, const path& filename) {
+    if (histogram == nullptr) {
+        cerr << "Error: writeNHISTCSV called with nullptr histogram." << endl;
+        return false;
+    }
+
     path dir = filename.parent_path();
     if (!dir.empty() && !exists(dir)) {
         create_directories(dir);
     }
-    fstream file;
-    file.open(filename, ios::out | ios::binary);
+
+    fstream file(filename, ios::out | ios::binary);
     if (!file.is_open()) {
-        cerr << "Error: Unable to open file: " << filename << ", no file written" << endl;
-        file.close();
+        cerr << "Error: Unable to open file: " << filename.filename() << ", no file written" << endl;
         return false;
     }
+
     const char* TopLine = "Value, Occurence\n";
     file.write(TopLine, static_cast<streamsize>(strlen(TopLine)));
     for (int i = 0; i < 256; i++) {
         file << i << ", " << std::fixed << setprecision(15) << histogram[i] << "\n";
     }
+
+    if (file.fail()) {
+        cerr << "Error: Write failure for file: " << filename.filename() << endl;
+        file.close();
+        return false;
+    }
+
     file.close();
     return true;
 }
 
 
 bool writeNHIST(double *histogram, const path& filename) {
+    if (histogram == nullptr) {
+        cerr << "Error: writeNHIST called with nullptr histogram." << endl;
+        return false;
+    }
+
     path dir = filename.parent_path();
     if (!dir.empty() && !exists(dir)) {
         create_directories(dir);
     }
-    fstream file;
-    file.open(filename, ios::out | ios::binary);
+
+    fstream file(filename, ios::out | ios::binary);
     if (!file.is_open()) {
         cerr << "Error: Unable to open file: " << filename.filename() << ", no file written" << endl;
+        return false;
+    }
+
+    file.write(reinterpret_cast<char *>(histogram), 256 * sizeof(double));
+
+    if (file.fail()) {
+        cerr << "Error: Write failure for file: " << filename.filename() << endl;
         file.close();
         return false;
     }
-    file.write(reinterpret_cast<char *>(histogram), 256 * sizeof(double));
+
     file.close();
     return true;
 }
 
 uint32_t *readRHIST(const path& filename) {
-    path dir = filename.parent_path();
-    if (!dir.empty() && !exists(dir)) {
-        create_directories(dir);
-    }
-    auto *histogram = new uint32_t[256];
-    fstream file;
-    file.open(filename, ios::in | ios::binary);
+    fstream file(filename, ios::in | ios::binary);
     if (!file.is_open()) {
-        cerr << "Error: Unable to open file: " << filename.filename() << ", no file written" << endl;
-        return {};
+        cerr << "Error: Unable to open file: " << filename.filename() << ", no file read" << endl;
+        return nullptr;
     }
+
+    auto *histogram = new uint32_t[256];
     file.read(reinterpret_cast<char *>(histogram), 256 * sizeof(uint32_t));
+
+    if (file.fail()) {
+        cerr << "Error: Read failure for file: " << filename.filename() << endl;
+        delete[] histogram;
+        file.close();
+        return nullptr;
+    }
+
     file.close();
     return histogram;
 }
 
 double *readNHIST(const path& filename) {
-    path dir = filename.parent_path();
-    if (!dir.empty() && !exists(dir)) {
-        create_directories(dir);
-    }
-    auto *histogram = new double[256];
-    fstream file;
-    file.open(filename, ios::in | ios::binary);
+    fstream file(filename, ios::in | ios::binary);
     if (!file.is_open()) {
-        cerr << "Error: Unable to open file: " << filename.filename() << ", no file written" << endl;
-        return {};
+        cerr << "Error: Unable to open file: " << filename.filename() << ", no file read" << endl;
+        return nullptr;
     }
+
+    auto *histogram = new double[256];
     file.read(reinterpret_cast<char *>(histogram), 256 * sizeof(double));
+
+    if (file.fail()) {
+        cerr << "Error: Read failure for file: " << filename.filename() << endl;
+        delete[] histogram;
+        file.close();
+        return nullptr;
+    }
+
     file.close();
     return histogram;
 }
 
 
 Image Image::computeLBP(int edgeType, int startPos, int rotation) {
+    if (m_p_data == nullptr || m_width <= 0 || m_height <= 0) {
+        cerr << "Error: computeLBP called on empty or uninitialized image." << endl;
+        return {};
+    }
+    if (startPos < 0 || startPos > 7) {
+        cerr << "Error: computeLBP received invalid startPos (" << startPos << "), expected 0‑7. Using 0." << endl;
+        startPos = 0;
+    }
     switch (edgeType) {
         case 0 : {
+            if (m_width < 3 || m_height < 3) {
+                cerr << "Error: Image too small (" << m_width << "x" << m_height << ") for CropEdge LBP (requires ≥3x3)." << endl;
+                return {};
+            }
             Image lbp(m_width - 2, m_height - 2);
+            if (lbp.m_p_data == nullptr) {
+                cerr << "Error: Memory allocation failed for CropEdge LBP image." << endl;
+                return {};
+            }
             for (int i = 0; i < m_height - 2; i++) {
                 for (int j = 0; j < m_width - 2; j++) {
                     if (lbp.m_p_data) {
@@ -525,6 +721,10 @@ Image Image::computeLBP(int edgeType, int startPos, int rotation) {
         }
         case 1 : {
             Image lbp(m_width, m_height);
+            if (lbp.m_p_data == nullptr) {
+                cerr << "Error: Memory allocation failed for LBP image." << endl;
+                return {};
+            }
             Image tempBorder(*this, 1, 0);
             for (int i = 0; i < m_height; i++) {
                 for (int j = 0; j < m_width; j++) {
@@ -539,6 +739,10 @@ Image Image::computeLBP(int edgeType, int startPos, int rotation) {
         }
         case 2 : {
             Image lbp(m_width, m_height);
+            if (lbp.m_p_data == nullptr) {
+                cerr << "Error: Memory allocation failed for LBP image." << endl;
+                return {};
+            }
             Image tempBorder(*this, 1, 255);
             for (int i = 0; i < m_height; i++) {
                 for (int j = 0; j < m_width; j++) {
@@ -553,6 +757,10 @@ Image Image::computeLBP(int edgeType, int startPos, int rotation) {
         }
         case 3 : {
             Image lbp(m_width, m_height);
+            if (lbp.m_p_data == nullptr) {
+                cerr << "Error: Memory allocation failed for LBP image." << endl;
+                return {};
+            }
             Image tempBorder(*this, 1);
             for (int i = 0; i < m_height; i++) {
                 for (int j = 0; j < m_width; j++) {
@@ -573,14 +781,30 @@ Image Image::computeLBP(int edgeType, int startPos, int rotation) {
 }
 
 Image Image::computeRILBP(int edgeType) {
+    if (m_p_data == nullptr || m_width <= 0 || m_height <= 0) {
+        cerr << "Error: computeRILBP called on empty or uninitialized image." << endl;
+        return {};
+    }
     switch (edgeType) {
         case 0 : {
+            if (m_width < 3 || m_height < 3) {
+                cerr << "Error: Image too small (" << m_width << "x" << m_height << ") for CropEdge RILBP (requires ≥3x3)." << endl;
+                return {};
+            }
             Image lbp(m_width - 2, m_height - 2);
+            if (lbp.m_p_data == nullptr) {
+                cerr << "Error: Memory allocation failed for CropEdge RILBP image." << endl;
+                return {};
+            }
             for (int i = 0; i < m_height - 2; i++) {
                 for (int j = 0; j < m_width - 2; j++) {
                     if (lbp.m_p_data) {
                         int startPos = this->startPosRLBP(j + 1, i + 1);
-                        lbp.m_p_data[i][j] = castToInt(this->localLBP(j + 1, i + 1, startPos, CW));
+                        if (startPos < 0) { // error already logged inside startPosRLBP
+                            lbp.m_p_data[i][j] = 0;
+                        } else {
+                            lbp.m_p_data[i][j] = castToInt(this->localLBP(j + 1, i + 1, startPos, CW));
+                        }
                     } else {
                         cerr << "Error: Unable to calculate LBP for edgeType: CropEdge, of dimension smaller than 3x3" << endl;
                     }
@@ -590,12 +814,20 @@ Image Image::computeRILBP(int edgeType) {
         }
         case 1 : {
             Image lbp(m_width, m_height);
+            if (lbp.m_p_data == nullptr) {
+                cerr << "Error: Memory allocation failed for RILBP image." << endl;
+                return {};
+            }
             Image tempBorder(*this, 1, 0);
             for (int i = 0; i < m_height; i++) {
                 for (int j = 0; j < m_width; j++) {
                     if (lbp.m_p_data) {
                         int startPos = tempBorder.startPosRLBP(j + 1, i + 1);
-                        lbp.m_p_data[i][j] = castToInt(tempBorder.localLBP(j + 1, i + 1, startPos, CW));
+                        if (startPos < 0) { // error already logged inside startPosRLBP
+                            lbp.m_p_data[i][j] = 0;
+                        } else {
+                            lbp.m_p_data[i][j] = castToInt(tempBorder.localLBP(j + 1, i + 1, startPos, CW));
+                        }
                     } else {
                         cerr << "Error: Unable to calculate LBP for edgeType: WhiteBorder, of dimension smaller than 1x1" << endl;
                     }
@@ -605,12 +837,20 @@ Image Image::computeRILBP(int edgeType) {
         }
         case 2 : {
             Image lbp(m_width, m_height);
+            if (lbp.m_p_data == nullptr) {
+                cerr << "Error: Memory allocation failed for RILBP image." << endl;
+                return {};
+            }
             Image tempBorder(*this, 1, 255);
             for (int i = 0; i < m_height; i++) {
                 for (int j = 0; j < m_width; j++) {
                     if (lbp.m_p_data) {
                         int startPos = tempBorder.startPosRLBP(j + 1, i + 1);
-                        lbp.m_p_data[i][j] = castToInt(tempBorder.localLBP(j + 1, i + 1, startPos, CW));
+                        if (startPos < 0) { // error already logged inside startPosRLBP
+                            lbp.m_p_data[i][j] = 0;
+                        } else {
+                            lbp.m_p_data[i][j] = castToInt(tempBorder.localLBP(j + 1, i + 1, startPos, CW));
+                        }
                     } else {
                         cerr << "Error: Unable to calculate LBP for edgeType: BlackBorder, of dimension smaller than 1x1" << endl;
                     }
@@ -620,12 +860,20 @@ Image Image::computeRILBP(int edgeType) {
         }
         case 3 : {
             Image lbp(m_width, m_height);
+            if (lbp.m_p_data == nullptr) {
+                cerr << "Error: Memory allocation failed for RILBP image." << endl;
+                return {};
+            }
             Image tempBorder(*this, 1);
             for (int i = 0; i < m_height; i++) {
                 for (int j = 0; j < m_width; j++) {
                     if (lbp.m_p_data) {
                         int startPos = tempBorder.startPosRLBP(j + 1, i + 1);
-                        lbp.m_p_data[i][j] = castToInt(tempBorder.localLBP(j + 1, i + 1, startPos, CW));
+                        if (startPos < 0) { // error already logged inside startPosRLBP
+                            lbp.m_p_data[i][j] = 0;
+                        } else {
+                            lbp.m_p_data[i][j] = castToInt(tempBorder.localLBP(j + 1, i + 1, startPos, CW));
+                        }
                     } else {
                         cerr << "Error: Unable to calculate LBP for edgeType: MirrorBorder, of dimension smaller than 1x1" << endl;
                     }
@@ -646,6 +894,13 @@ bool Image::writeTGA(const path& filename, int colorType) {
         cerr << "Error: Empty or invalid image, not writing TGA." << endl;
         return false;
     }
+
+    // Validate colorType early
+    if (colorType != 0 && colorType != 1) {
+        cerr << "Error: Invalid colorType: " << colorType << endl;
+        return false;
+    }
+
     path dir = filename.parent_path();
     if (!dir.empty() && !exists(dir)) {
         create_directories(dir);
@@ -670,9 +925,8 @@ bool Image::writeTGA(const path& filename, int colorType) {
             break;
         }
         default: {
-            cerr << "Error: Invalid colorType: " << colorType << endl;
-            file.close();
-            return false;
+            // Should never happen due to early check, but keep switch exhaustive
+            break;
         }
     }
     header[12] = static_cast<uint8_t>(m_width % 256);
@@ -701,6 +955,16 @@ bool Image::writeTGA(const path& filename, int colorType) {
             }
             break;
         }
+        default: {
+            // Should never happen due to early check, but keep switch exhaustive
+            break;
+        }
+    }
+    // Check for write failures
+    if (file.fail()) {
+        cerr << "Error: Write failure for file: " << filename.filename() << endl;
+        file.close();
+        return false;
     }
     file.close();
     return true;
@@ -721,6 +985,13 @@ void Image::readTGA(const path& filename) {
     int width = header[12] + (header[13] << 8);
     int height = header[14] + (header[15] << 8);
     uint8_t bitDepth = header[16];
+
+    // After obtaining width and height, check for valid dimensions
+    if (width <= 0 || height <= 0) {
+        cerr << "Error: Invalid dimensions (" << width << "x" << height << ") in TGA header." << endl;
+        file.close();
+        return;
+    }
 
     if (imageType != 3 && imageType != 2) {
         cerr << "Error: TGA file is not grayscale (type 3) or RGB (type 2), aborting read." << endl;
@@ -754,23 +1025,12 @@ void Image::readTGA(const path& filename) {
     for (int i = 0; i < m_height; i++) {
         m_p_data[i] = new uint8_t[m_width];
     }
-
-    // if (imageType == 3) {
-    //     // Grayscale image: read directly
-    //     for (int i = 0; i < m_height; i++) {
-    //         file.read(reinterpret_cast<char *>(m_p_data[i]), static_cast<streamsize>(m_width * sizeof(uint8_t)));
-    //     }
-    // } else if (imageType == 2) {
-    //     // RGB image: read and convert to grayscale
-    //     for (int i = 0; i < m_height; i++) {
-    //         for (int j = 0; j < m_width; j++) {
-    //             uint8_t bgr[3];
-    //             file.read(reinterpret_cast<char *>(bgr), 3);
-    //             m_p_data[i][j] = static_cast<uint8_t>(
-    //                 (static_cast<int>(bgr[0]) + static_cast<int>(bgr[1]) + static_cast<int>(bgr[2])) / 3);
-    //         }
-    //     }
-    // }
+    // After allocating m_p_data, check for allocation failure
+    if (m_p_data == nullptr) {
+        cerr << "Error: Memory allocation failed for TGA image data." << endl;
+        file.close();
+        return;
+    }
 
     switch (imageType) {
         case 3: {
@@ -790,17 +1050,27 @@ void Image::readTGA(const path& filename) {
             }
             break;
         }
-        default: {
-            cerr << "Error: TGA file is not grayscale (type 3) or RGB (type 2), aborting read." << endl;
-            file.close();
-            return;
-        }
     }
-
+    // After reading pixels, check for read failures
+    if (file.fail()) {
+        cerr << "Error: Unexpected end of file or read failure for file: " << filename.filename() << endl;
+        // Clean up partially read data
+        for (int i = 0; i < m_height; ++i) {
+            delete[] m_p_data[i];
+        }
+        delete[] m_p_data;
+        m_p_data = nullptr;
+        file.close();
+        return;
+    }
     file.close();
 }
 
 void Image::setVal(int x, int y, uint8_t val) {
+    if (m_p_data == nullptr || x < 0 || y < 0 || x >= m_width || y >= m_height) {
+        cerr << "Error: setVal called with out‑of‑bounds coordinates (" << x << "," << y << ") or uninitialized image." << endl;
+        return;
+    }
     m_p_data[y][x] = val;
 }
 
@@ -821,22 +1091,19 @@ bool Image::writeTIF(const path& filename, int colorType) {
         return false;
     }
 
-    // --- HEADER (8 bytes) ---
     uint8_t header[4] = {0};
-    header[0] = 0x49; // 'I' = Little-endian
-    header[1] = 0x49; // 'I'
-    header[2] = 0x2A; // 42 magic number
+    header[0] = 0x49;
+    header[1] = 0x49;
+    header[2] = 0x2A;
     header[3] = 0x00;
-    uint32_t ifd_offset = 8; // Offset to IFD (immediately after header)
+    uint32_t ifd_offset = 8;
 
     file.write(reinterpret_cast<const char *>(header), sizeof(header));
     file.write(reinterpret_cast<const char *>(&ifd_offset), sizeof(uint32_t));
 
-    // --- IFD (Image File Directory) ---
     uint16_t entry_count = 9;
-    file.write(reinterpret_cast<const char *>(&entry_count), sizeof(uint16_t)); // Number of IFD entries (2 bytes)
+    file.write(reinterpret_cast<const char *>(&entry_count), sizeof(uint16_t));
 
-    // Helper lambda to write raw tag entries (2 + 2 + 4 + 4 = 12 bytes each)
     auto writeTag = [&](uint16_t tag, uint16_t type, uint32_t count, uint32_t value_or_offset) {
         file.write(reinterpret_cast<const char *>(&tag), sizeof(uint16_t));
         file.write(reinterpret_cast<const char *>(&type), sizeof(uint16_t));
@@ -844,12 +1111,11 @@ bool Image::writeTIF(const path& filename, int colorType) {
         file.write(reinterpret_cast<const char *>(&value_or_offset), sizeof(uint32_t));
     };
 
-    // Calculate needed values
     uint32_t width = static_cast<uint32_t>(m_width);
     uint32_t height = static_cast<uint32_t>(m_height);
     uint32_t bits_per_sample = 8;
     uint32_t samples_per_pixel;
-    uint32_t strip_byte_count = width * height; // Size in bytes
+    uint32_t strip_byte_count = width * height;
     bool isRGB = false;
     switch (colorType) {
         case 0: {
@@ -868,54 +1134,43 @@ bool Image::writeTIF(const path& filename, int colorType) {
             return false;
         }
     }
-    uint32_t rows_per_strip = height; // One strip for the whole image
+    uint32_t rows_per_strip = height;
 
-    // For RGB, we need to write a BitsPerSample array of 3 shorts [8,8,8] after the IFD entries and next IFD offset
     uint32_t bits_per_sample_offset = 0;
     if (isRGB) {
-        // header(4) + ifd_offset(4) + entry_count(2) + 9*12 (entries) + next_ifd(4) = 4+4+2+108+4=122
         bits_per_sample_offset = 8 + 2 + (entry_count * 12) + 4;
     }
-    // Pixel data offset is after all that
     uint32_t strip_offset = 8 + 2 + (entry_count * 12) + 4;
     if (isRGB) {
-        strip_offset += 6; // 3 shorts for BitsPerSample array
+        strip_offset += 6;
     }
 
-    // Write IFD entries (order doesn't matter, but this is standard):
-    writeTag(256, 4, 1, width); // ImageWidth (Tag 256, Type LONG = 4 bytes)
-    writeTag(257, 4, 1, height); // ImageLength (Tag 257, Type LONG)
+    writeTag(256, 4, 1, width);
+    writeTag(257, 4, 1, height);
     if (!isRGB) {
-        writeTag(258, 3, 1, bits_per_sample); // BitsPerSample (Tag 258, Type SHORT = 2 bytes)
+        writeTag(258, 3, 1, bits_per_sample);
     } else {
-        // For RGB: count=3, value_or_offset=offset to bits_per_sample array
         writeTag(258, 3, 3, bits_per_sample_offset);
     }
-    writeTag(259, 3, 1, 1); // Compression (Tag 259, Type SHORT, 1 = no compression)
+    writeTag(259, 3, 1, 1);
     if (!isRGB) {
-        writeTag(262, 3, 1, 1); // PhotometricInterpretation (Tag 262, Type SHORT, 1 = BlackIsZero)
+        writeTag(262, 3, 1, 1);
     } else {
-        writeTag(262, 3, 1, 2); // PhotometricInterpretation (Tag 262, Type SHORT, 2 = RGB)
+        writeTag(262, 3, 1, 2);
     }
-    writeTag(273, 4, 1, strip_offset); // StripOffsets (Tag 273, Type LONG, where pixel data starts)
-    writeTag(277, 3, 1, samples_per_pixel); // SamplesPerPixel (Tag 277, Type SHORT, 1 for grayscale)
-    writeTag(278, 4, 1, rows_per_strip); // RowsPerStrip (Tag 278, Type LONG)
-    writeTag(279, 4, 1, strip_byte_count); // StripByteCounts (Tag 279, Type LONG, total pixel data size)
+    writeTag(273, 4, 1, strip_offset);
+    writeTag(277, 3, 1, samples_per_pixel);
+    writeTag(278, 4, 1, rows_per_strip);
+    writeTag(279, 4, 1, strip_byte_count);
 
-    // --- Next IFD offset (4 bytes) ---
-    uint32_t next_ifd_offset = 0; // 0 = no more IFDs
+    uint32_t next_ifd_offset = 0;
     file.write(reinterpret_cast<const char *>(&next_ifd_offset), sizeof(uint32_t));
 
-    // --- BitsPerSample array for RGB ---
     if (isRGB) {
         uint16_t bps[3] = {8, 8, 8};
         file.write(reinterpret_cast<const char *>(bps), 3 * sizeof(uint16_t));
     }
 
-    // --- PIXEL DATA ---
-    // Image is stored bottom-to-top, left-to-right (standard TIFF order for uncompressed)
-    // If you want simple top-to-bottom (not strict TIFF spec but works for most viewers),
-    // just loop y=0 to height-1
     switch (colorType) {
         case 0: {
             for (int i = 0; i < m_height; i++) {
@@ -943,12 +1198,19 @@ bool Image::writeTIF(const path& filename, int colorType) {
 }
 
 void Image::displayImage() {
+    path cacheDir("cache");
+    if (!exists(cacheDir)) {
+        create_directories(cacheDir);
+    }
     random_device rd;
     mt19937 gen(rd());
     uniform_real_distribution<double> dist(0, 100000);
     int rand = dist(gen);
     string filename = "cache/temp_" + std::to_string(rand) + ".tif";
-    this->writeTIF(filename, Grayscale);
+    if (!this->writeTIF(filename, Grayscale)) {
+        cerr << "Error: Unable to write temporary TIF file for display." << endl;
+        return;
+    }
 #ifdef __APPLE__
     string command = "open -a Preview \"" + filename + "\"";
 #elif defined(_WIN32)
@@ -956,12 +1218,18 @@ void Image::displayImage() {
 #else
     string command = "xdg-open \"" + filename + "\"";
 #endif
-    system(command.c_str());
+    if (int ret = system(command.c_str()); ret != 0) {
+        cerr << "Error: Failed to open image viewer (command returned " << ret << ")." << endl;
+    }
     // std::filesystem::remove(filename);
     // std::filesystem::remove_all("cache");
 }
 
 void displayImage(const path& filename) {
+    if (!exists(filename)) {
+        cerr << "Error: displayImage called with non‑existent file \"" << filename.filename() << "\"." << endl;
+        return;
+    }
     string filenameStr = filename.string();
 #ifdef __APPLE__
     string command = "open -a Preview \"" + filenameStr + "\"";
@@ -970,8 +1238,10 @@ void displayImage(const path& filename) {
 #else
     string command = "xdg-open \"" + filenameStr + "\"";
 #endif
-    system(command.c_str());
-};
+    if (int ret = system(command.c_str()); ret != 0) {
+        cerr << "Error: Failed to open image viewer (command returned " << ret << ")." << endl;
+    }
+}
 
 void displayTestImage() {
     Image image(1920, 1080, 0); // black background

@@ -8,9 +8,9 @@
 namespace fs = std::filesystem;
 using std::cout, std::endl;
 string NAME = "LocalBinaryPattern";
-string VERSION = "v0.1.2";
-string RELEASE = "0.1.2-alpha";
-string RELEASE_DATE = "2025-05-10";
+string VERSION = "v1.0.1";
+string RELEASE = "1.0.1";
+string RELEASE_DATE = "2025-05-12";
 
 
 string toLowercase(const string& input) {

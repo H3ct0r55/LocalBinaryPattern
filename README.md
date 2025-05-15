@@ -23,7 +23,7 @@ Latest Release: `v1.0.2`
 
 ## Installation
 
-Alpha builds are available. Visit the [Releases](https://github.com/H3ct0r55/LocalBinaryPattern/releases/) page to download the latest version for your platform.
+Release builds are available. Visit the [Releases](https://github.com/H3ct0r55/LocalBinaryPattern/releases/) page to download the latest version for your platform.
 
 You may also build from source using CMake if desired:
 ```

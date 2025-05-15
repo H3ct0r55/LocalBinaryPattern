@@ -31,7 +31,7 @@ Options:
       Specify the starting position for LBP.
       Accepted values: TL, TC, TR, CR, BR, BC, BL, CL
 
-  -D <direction>
+  -R <direction>
       Specify rotation direction for LBP.
       Accepted values: CW, CCW
 
@@ -65,7 +65,7 @@ Examples:
   LocalBinaryPattern -i demo.tga -H Normalized -o output.csv
       Compute the normalized LBP histogram and save to "output.n.csv".
 
-  LocalBinaryPattern -i demo.tga -L -P TL -D CW
+  LocalBinaryPattern -i demo.tga -L -P TL -R CW
       Compute the LBP of "demo.tga" using top-left start and clockwise rotation.
 
   LocalBinaryPattern -i demo.tga -L -I

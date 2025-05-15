@@ -2,14 +2,14 @@
 
 **LocalBinaryPattern** is a C++ tool and library for computing Local Binary Patterns (LBPs) and their corresponding histograms. LBPs are useful in image processing for texture classification and feature extraction.
 
-## Status ![status: alpha](https://img.shields.io/badge/status-alpha-brightgreen)
+## Status ![status: release](https://img.shields.io/badge/status-release-blue)
 
 Fully functional alpha version with documented APIs, a modular architecture, and reliable LBP/histogram pipelines.  
-Latest Release: `v0.1.2-alpha`
+Latest Release: `v1.0.2`
 
 ## Features
 
-- Computes LBPs using a 3×3 neighborhood, processed clockwise from the top-left corner.
+- Computes LBPs using a 3×3 neighborhood, with optional rotation invariance.
 - Supports `.TGA` and `.IMAT` (Proprietary Image Matrix format) for input.
 - Outputs to `.TGA`, `.IMAT`, and `.TIF` formats for LBP images.
 - Outputs histogram data to `.HIST` (Proprietary Histogram format) and `.CSV`.
@@ -18,7 +18,6 @@ Latest Release: `v0.1.2-alpha`
 - Internally casts 8-bit binary arrays into a single decimal value to encode patterns
 - Offers four strategies for edge handling: Crop, Black, White, and Mirror
 - Supports both raw and normalized histogram generation
-- Histogram export includes proprietary `.HIST` and interoperable `.CSV` formats
 - Designed for modularity and portability, compatible with macOS, Linux, and Windows
 - Implemented in modern C++20 with minimal dependencies
 
@@ -28,7 +27,7 @@ Alpha builds are available. Visit the [Releases](https://github.com/H3ct0r55/Loc
 
 You may also build from source using CMake if desired:
 ```
-git clone https://github.com/your-repo/LocalBinaryPattern.git
+git clone https://github.com/H3ct0r55/LocalBinaryPattern.git
 cd LocalBinaryPattern
 mkdir build && cd build
 cmake ..
@@ -130,7 +129,7 @@ Options:
 
 - Launch interactive mode:
   ```
-  LocalBinaryPattern --interactive
+  LocalBinaryPattern --interactive (or) LocalBinaryPattern
   ```
 
 ## Documentation

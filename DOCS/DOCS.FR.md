@@ -97,7 +97,7 @@ Effectue le calcul du Local Binary Pattern (LBP).
 ### `-P <startPos>`
 Spécifie la position de départ pour le LBP. Valeurs acceptées : `TL`, `TC`, `TR`, `CR`, `BR`, `BC`, `BL`, `CL`
 
-### `-D <direction>`
+### `-R <direction>`
 Spécifie la direction de rotation pour le LBP. Valeurs acceptées : `CW`, `CCW`
 
 ### `-I`

@@ -34,6 +34,7 @@ void LaunchInteractiveWizard() {
     int histType = UNSUPPORTED_HISTTYPE;
     bool rotationInvariance = false;
     cout << "Welcome to the LocalBinaryPattern Interactive Wizard!" << endl;
+    cout << "For advanced options please exit with Ctrl+C and run \"LocalBinaryPattern --help\" for advanced usage options" << endl;
     cout << "Press Enter to continue..." << endl;
     cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     clearConsole();
@@ -328,6 +329,6 @@ void LaunchInteractiveWizard() {
         } else {
             cout << "Error while writing output file " << output << endl;
         }
-        cout << "Execution finished, exiting...";
+        cout << "Execution finished, exiting..." << endl;
     }
 }

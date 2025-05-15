@@ -8,9 +8,9 @@
 namespace fs = std::filesystem;
 using std::cout, std::endl;
 string NAME = "LocalBinaryPattern";
-string VERSION = "v1.0.1";
-string RELEASE = "1.0.1";
-string RELEASE_DATE = "2025-05-12";
+string VERSION = "v1.0.2";
+string RELEASE = "1.0.2";
+string RELEASE_DATE = "2025-05-15";
 
 
 string toLowercase(const string& input) {
@@ -34,7 +34,12 @@ int detectEdgeType(const string& edge) {
     return UNSUPPORTED_EDGETYPE;
 }
 
+
 int main(int argc, char* argv[]) {
+    if (argc < 2) {
+        LaunchInteractiveWizard();
+        return 0;
+    }
     bool input = false;
     int inputType = UNSUPPORTED_FILETYPE;
     path inputFile;
@@ -70,11 +75,11 @@ int main(int argc, char* argv[]) {
                 printHelp();
                 return 0;
             }
-            if (arg == "--interactive") {
-                cout << "Starting Interactive Wizard, please wait..." << endl << endl;
-                LaunchInteractiveWizard();
-                return 0;
-            }
+            // if (arg == "--interactive") {
+            //     cout << "Starting Interactive Wizard, please wait..." << endl << endl;
+            //     LaunchInteractiveWizard();
+            //     return 0;
+            // }
         }
         if (argv[i][0] == '-' && argv[i][1] != '-') {
             switch (argv[i][1]) {

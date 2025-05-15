@@ -4,7 +4,7 @@
 
 ## Status ![status: release](https://img.shields.io/badge/status-release-blue)
 
-Fully functional alpha version with documented APIs, a modular architecture, and reliable LBP/histogram pipelines.  
+Fully functional release version with documented APIs, a modular architecture, and reliable LBP/histogram pipelines.  
 Latest Release: `v1.0.2`
 
 ## Features

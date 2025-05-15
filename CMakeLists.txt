@@ -6,15 +6,15 @@ set(CMAKE_CXX_STANDARD 20)
 #set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -fsanitize=address")
 
 
-add_executable(LocalBinaryPattern main.cpp
-        Image.cpp
-        Image.h
-        help_text.h
-        InteractiveWizard.h
-        InteractiveWizard.cpp
-        TypeDetect.h
-        TypeDetect.cpp
-        Image.cpp
+add_executable(LocalBinaryPattern src/main.cpp
+        src/Image/Image.cpp
+        src/Image/Image.h
+        src/HelpText/help_text.h
+        src/InteractiveWizard/InteractiveWizard.h
+        src/InteractiveWizard/InteractiveWizard.cpp
+        src/TypeDetect/TypeDetect.h
+        src/TypeDetect/TypeDetect.cpp
+        src/Image/Image.cpp
 )
 
 #

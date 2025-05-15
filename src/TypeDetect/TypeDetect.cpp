@@ -3,7 +3,7 @@
 //
 
 #include "TypeDetect.h"
-#include "Image.h"
+#include "../Image/Image.h"
 
 int detectFileType(const string& ext, bool input) {
     if (ext == ".imat") return IMAT;

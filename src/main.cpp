@@ -1,10 +1,10 @@
 #include <iostream>
-#include "Image.h"
-#include "help_text.h"
+#include "Image/Image.h"
+#include "HelpText/help_text.h"
 #include <filesystem>
 #include <cctype>
-#include "InteractiveWizard.h"
-#include "TypeDetect.h"
+#include "InteractiveWizard/InteractiveWizard.h"
+#include "TypeDetect/TypeDetect.h"
 namespace fs = std::filesystem;
 using std::cout, std::endl;
 string NAME = "LocalBinaryPattern";

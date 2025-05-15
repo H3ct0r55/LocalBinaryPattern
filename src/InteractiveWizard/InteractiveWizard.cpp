@@ -3,10 +3,10 @@
 //
 
 #include "InteractiveWizard.h"
-#include "Image.h"
+#include "../Image/Image.h"
 #include <iostream>
 #include <filesystem>
-#include "TypeDetect.h"
+#include "../TypeDetect/TypeDetect.h"
 
 namespace fs = std::filesystem;
 using std::cout, std::cin, std::endl, std::string, fs::path, std::getline;
